@@ -18,10 +18,10 @@ this.dots = this.dots || {};
 	MainCtrl.FPS = 60;
 
 	//
-	MainCtrl.ROW_COUNT = 6;
+	MainCtrl.ROW_COUNT = 4;
 
 	//
-	MainCtrl.COLUMN_COUNT = 8;
+	MainCtrl.COLUMN_COUNT = 4;
 
 	//キャンバス
 	MainCtrl.canvas;
@@ -37,6 +37,9 @@ this.dots = this.dots || {};
 
 	//現在対象にインデックスの配列
 	MainCtrl.currentTargetIndexArray = [];
+
+	//
+	MainCtrl.connectedLinesPointArray = [];
 
 	//
 	MainCtrl.playFlg = true;
@@ -59,18 +62,38 @@ this.dots = this.dots || {};
 		MainCtrl.canvas.addEventListener('touchend', MainCtrl.canvasTouchEndHandler, false);
 
 		var canvasRect = canvas.getBoundingClientRect();
-		console.log("aa:" + canvasRect.left);
 
 		var color = 0;
 		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
 			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
 				color = parseInt(Math.random() * 5);
-				//var dot = new dots.Dot(color);
-				//stageにaddchild
-				//MainCtrl.dotsArray.push(dot);
+				console.log(parseInt(i  / 4) * 4 + j);
+				var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.testPointArray[i * 4 + j]);
+				MainCtrl.dotsArray.push(color);
 			}
 		}
 	};
+
+	MainCtrl.drawDots = function() {
+		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
+			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
+				var color = MainCtrl.dotsArray[i * 4 + j];
+				var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.testPointArray[i * 4 + j]);
+			}
+		}	
+	};
+
+	MainCtrl.drawConnectedLines = function() {
+		for (var i = 0; i < MainCtrl.connectedLinesPointArray.length - 1; i++) {
+			MainCtrl.ctx.strokeStyle = 'black';
+			MainCtrl.ctx.lineWidth = 10;
+			MainCtrl.ctx.lineCap = 'round';
+			MainCtrl.ctx.beginPath();
+			MainCtrl.ctx.moveTo(MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].x, MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].y);
+			MainCtrl.ctx.lineTo(MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].x, MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].y);
+			MainCtrl.ctx.stroke();
+		};
+	}
 
 	//新しいドットを追加する
 	MainCtrl.addNewDots = function(){
@@ -137,6 +160,8 @@ this.dots = this.dots || {};
 		if(!MainCtrl.playFlg){return;}
 		//もしドットの上であれば選択したものとする
 
+		MainCtrl.connectedLinesPointArray = [];
+
 		event.preventDefault();
 	};
 
@@ -146,6 +171,8 @@ this.dots = this.dots || {};
 
 		//clear
 		MainCtrl.ctx.clearRect(0,0,MainCtrl.canvas.width,MainCtrl.canvas.height);
+		MainCtrl.drawDots();
+		MainCtrl.drawConnectedLines();
 
 		var len = MainCtrl.testPointArray.length;
 		for (var i = len - 1; i >= 0; i--) {
@@ -155,10 +182,13 @@ this.dots = this.dots || {};
 				x < MainCtrl.testPointArray[i].x + 20 && 
 				y > MainCtrl.testPointArray[i].y &&
 				y < MainCtrl.testPointArray[i].y + 20 ) {
-				MainCtrl.touchStartPoint.x = x;
-				MainCtrl.touchStartPoint.y = y;
+				MainCtrl.touchStartPoint.x = MainCtrl.testPointArray[i].x;
+				MainCtrl.touchStartPoint.y = MainCtrl.testPointArray[i].y;
 				console.log('startX:' + x);
 				console.log('startY:' + y);
+
+				MainCtrl.connectedLinesPointArray.push(i);
+
 				break;
 			}
 		}
