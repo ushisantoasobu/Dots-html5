@@ -86,15 +86,22 @@ this.dots = this.dots || {};
 
 	MainCtrl.drawConnectedLines = function() {
 		for (var i = 0; i < MainCtrl.connectedLinesPointArray.length - 1; i++) {
-			MainCtrl.ctx.strokeStyle = 'black';
-			MainCtrl.ctx.lineWidth = 10;
-			MainCtrl.ctx.lineCap = 'round';
-			MainCtrl.ctx.beginPath();
-			MainCtrl.ctx.moveTo(MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].x, MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].y);
-			MainCtrl.ctx.lineTo(MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].x, MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].y);
-			MainCtrl.ctx.stroke();
+			MainCtrl.drawLine(MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].x,
+			 MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].y,
+			 MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].x,
+			 MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].y);
 		};
 	}
+
+	MainCtrl.drawLine = function(fromX, fromY, toX, toY) {
+		MainCtrl.ctx.strokeStyle = 'gray';
+		MainCtrl.ctx.lineWidth = 5;
+		MainCtrl.ctx.lineCap = 'round';
+		MainCtrl.ctx.beginPath();
+		MainCtrl.ctx.moveTo(fromX, fromY);
+		MainCtrl.ctx.lineTo(toX, toY);
+		MainCtrl.ctx.stroke();
+	};
 
 	//新しいドットを追加する
 	MainCtrl.addNewDots = function(){
@@ -234,13 +241,10 @@ this.dots = this.dots || {};
 			}
 		}
 
-		MainCtrl.ctx.strokeStyle = 'black';
-		MainCtrl.ctx.lineWidth = 10;
-		MainCtrl.ctx.lineCap = 'round';
-		MainCtrl.ctx.beginPath();
-		MainCtrl.ctx.moveTo(MainCtrl.touchStartPoint.x, MainCtrl.touchStartPoint.y);
-		MainCtrl.ctx.lineTo(e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft, e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop);
-		MainCtrl.ctx.stroke();
+		MainCtrl.drawLine(MainCtrl.touchStartPoint.x,
+		 MainCtrl.touchStartPoint.y,
+		 e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft,
+		 e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop)
 
 		//１つでも選択してある状態であれば線を描画する
 
