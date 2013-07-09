@@ -13,9 +13,9 @@ this.dots = this.dots || {};
 
 	Dot.COLORLIST = [	'rgb(128, 100, 162)', 
 						'rgb(255, 200, 62)', 
-						'rgb(48, 230, 92)', 
+						'rgb(48, 230, 92)'];/*, 
 						'rgb(200, 200, 111)', 
-						'rgb(28, 111, 192)', ];
+						'rgb(28, 111, 192)', ];*/
 
 	var p = Dot.prototype;
 

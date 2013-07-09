@@ -9,9 +9,11 @@
 </head>
 <body>
 	<p>dots</p>
+	<p id="deleteTotalCount">0</p>
+	<p id="deleteCont">0</p>
 	<canvas id="dotsCanvas" width='320' height='320'></canvas>
 
-	<script src='./dot.js'></script>
+	<script src='./dot.js'></script>	
 	<script src='./MainCtrl.js'></script>
 	
 	<script type="text/javascript">
@@ -19,6 +21,8 @@
 	function init(){
 		var canvas = document.getElementById('dotsCanvas');
 		dots.MainCtrl.setInitialSetting(canvas);
+		console.log(canvas.offsetTop);
+		console.log(canvas.offsetLeft);
 	}
 
 	window.addEventListener('load', init, false);
