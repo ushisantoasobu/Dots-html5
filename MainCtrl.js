@@ -50,7 +50,11 @@ this.dots = this.dots || {};
 	/** explanation */
  	MainCtrl.pointArray = [];
 
-	//初期状態セット
+	/**
+	 * 初期状態セット
+	 * 
+	 * @param canvas
+	 */
 	MainCtrl.setInitialSetting = function(canvas){
 
 		MainCtrl.canvas = canvas;
@@ -80,6 +84,21 @@ this.dots = this.dots || {};
 		}
 	};
 
+	/**
+	 * データを初期化
+	 */
+	MainCtrl.resetData = function(){
+		MainCtrl.currentTargetColor = -1;
+		MainCtrl.connectedLinesPointArray = [];
+		MainCtrl.touchStartPoint = {x:0, y:0};
+	}
+
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.drawDots = function() {
 		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
 			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
@@ -93,6 +112,12 @@ this.dots = this.dots || {};
 		}
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.drawConnectedLines = function() {
 		for (var i = 0; i < MainCtrl.connectedLinesPointArray.length - 1; i++) {
 			MainCtrl.drawLine(MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i]].x,
@@ -102,6 +127,12 @@ this.dots = this.dots || {};
 		};
 	}
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.drawLine = function(fromX, fromY, toX, toY) {
 		MainCtrl.ctx.strokeStyle = 'gray';
 		MainCtrl.ctx.lineWidth = 5;
@@ -112,7 +143,9 @@ this.dots = this.dots || {};
 		MainCtrl.ctx.stroke();
 	};
 
-	//新しいドットを追加する
+	/**
+	 * 新しいドットを追加する
+	 */
 	MainCtrl.addNewDots = function(){
 		var createCount = 0;
 		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
@@ -131,7 +164,9 @@ this.dots = this.dots || {};
 		MainCtrl.setPlayEnable();
 	};
 
-	//ドットをつめる
+	/**
+	 * ドットをつめる
+	 */
 	MainCtrl.closeDots = function(){
 		var checkCount = 0;
 		var nullCount = 0;
@@ -150,7 +185,11 @@ this.dots = this.dots || {};
 		}
 	};
 
-	//ドットを削除する
+	/**
+	 * ドットを削除する
+	 * 
+	 * @param indexArray
+	 */
 	MainCtrl.removeDots = function(indexArray){
 		for (var i = indexArray.length - 1; i >= 0; i--) {
 
@@ -160,14 +199,24 @@ this.dots = this.dots || {};
 		MainCtrl.closeDots();
 	};
 
-	//ドットを下にずらす
-	//testコメント
+	/**
+	 * ドットを下にずらす
+	 * 
+	 * @param target
+	 * @param amount
+	 */
 	MainCtrl.fallDot = function(target, amount){
 		//
 
 		MainCtrl.addNewDots();
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.canvasTouchStartHandler = function(e){
 		/**/
 		MainCtrl.touchStartPoint.x = e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft;
@@ -185,6 +234,12 @@ this.dots = this.dots || {};
 		event.preventDefault();
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.canvasTouchMoveHandler = function(e){
 
 		if(!MainCtrl.playFlg){return;}
@@ -266,6 +321,12 @@ this.dots = this.dots || {};
 		event.preventDefault();
 	}
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.checkExistDotLeft = function(index){
 		var flg = true;
 		if (index % 4 === 0) {
@@ -274,6 +335,12 @@ this.dots = this.dots || {};
 		return flg;
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.checkExistDotRight = function(index){
 		var flg = true;
 		if (index % 4 === 3) {
@@ -282,6 +349,12 @@ this.dots = this.dots || {};
 		return flg;
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.checkExistDotTop = function(index){
 		var flg = true;
 		if (index < 4) {
@@ -290,6 +363,12 @@ this.dots = this.dots || {};
 		return flg;
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.checkExistDotBottom = function(index){
 		var flg = true;
 		if (index > 4 * (4 - 1)) {
@@ -298,6 +377,12 @@ this.dots = this.dots || {};
 		return flg;
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
 	MainCtrl.canvasTouchEndHandler = function(e){
 
 		if(!MainCtrl.playFlg){return;}
@@ -346,29 +431,25 @@ this.dots = this.dots || {};
 
 				MainCtrl.startFallAnimation(tempArray);
 
-				//各種初期化
-				MainCtrl.currentTargetColor = -1;
-				MainCtrl.connectedLinesPointArray = [];	
-				MainCtrl.touchStartPoint = {x:0, y:0};
+				MainCtrl.resetData();
 
-			}, 1000 / 60 * 8);
+			}, 1000 / MainCtrl.FPS * 8);
 
 		} else {
 			//クリアするdotがないとき
 			MainCtrl.ctx.clearRect(0,0,MainCtrl.canvas.width,MainCtrl.canvas.height);
 			MainCtrl.drawDots();
 
-			MainCtrl.currentTargetColor = -1;
-			MainCtrl.connectedLinesPointArray = [];	
-			MainCtrl.touchStartPoint = {x:0, y:0};
+			MainCtrl.resetData();
 		}
-
-		//各種初期化
-		// MainCtrl.currentTargetColor = -1;
-		// MainCtrl.connectedLinesPointArray = [];	
-		// MainCtrl.touchStartPoint = {x:0, y:0};
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param index
+	 * @return count
+	 */
 	MainCtrl.getFallCount = function(index) {
 		var count = 0;
 		var div = Math.floor(index / MainCtrl.COLUMN_COUNT); 	//剰
@@ -381,6 +462,11 @@ this.dots = this.dots || {};
 		return count;
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 */
 	MainCtrl.startFallAnimation = function(array) {
 
 		var timeCount = 0;
@@ -401,6 +487,12 @@ this.dots = this.dots || {};
 		}, 500 / MainCtrl.FPS); //1000 * 30 / 60
 	};
 
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @param explanation
+	 */
 	MainCtrl.drawAnimationDots = function(array, timeCount) {
 		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
 			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
@@ -419,10 +511,16 @@ this.dots = this.dots || {};
 		}	
 	};
 
+	/**
+	 * プレイ可能状態にする
+	 */
 	MainCtrl.setPlayEnable = function(){
 		MainCtrl.playFlg = true;
 	};
 
+	/**
+	 * プレイ不可能状態にする
+	 */
 	MainCtrl.setPlayDisable = function(){
 		MainCtrl.playFlg = false;
 	};
