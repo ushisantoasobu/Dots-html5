@@ -5,29 +5,32 @@ this.dots = this.dots || {};
 
 	var MainCtrl = {};
 
-	//
+	/** fps */
 	MainCtrl.FPS = 60;
 
-	//
+	/** row count */
 	MainCtrl.ROW_COUNT = 4;
 
-	//
+	/** colomun count */
 	MainCtrl.COLUMN_COUNT = 4;
 
-	//キャンバス
+	/** canvas */
 	MainCtrl.canvas;
 
-	//コンテクスト
+	/** context */
 	MainCtrl.ctx;
 
-	//削除したドットの総数
+	/** count of delete total dots */
 	MainCtrl.deleteDotsCount = 0;
 
-	//削除アクション数
+	/** count of delete action */
 	MainCtrl.deleteCount = 0;
 
-	//ドットの配列
-	MainCtrl.dotsArray = [],
+	/** dots arrat */
+	MainCtrl.dotsArray = [];
+
+	/** explanation */
+	MainCtrl.DOTS_DISTANCE = 50;
 
 	//現在対象にインデックスの配列
 	MainCtrl.currentTargetIndexArray = [];
@@ -44,28 +47,34 @@ this.dots = this.dots || {};
 	/**  */
 	MainCtrl.touchStartPoint = {x:0, y:0};
 
-	MainCtrl.testPointArray = [	{x:50*1, y:50*1},{x:50*2, y:50*1},{x:50*3, y:50*1},{x:50*4, y:50*1},
-								{x:50*1, y:50*2},{x:50*2, y:50*2},{x:50*3, y:50*2},{x:50*4, y:50*2},
-								{x:50*1, y:50*3},{x:50*2, y:50*3},{x:50*3, y:50*3},{x:50*4, y:50*3},
-								{x:50*1, y:50*4},{x:50*2, y:50*4},{x:50*3, y:50*4},{x:50*4, y:50*4}
-							];
+	/** explanation */
+ 	MainCtrl.pointArray = [];
 
 	//初期状態セット
 	MainCtrl.setInitialSetting = function(canvas){
 
 		MainCtrl.canvas = canvas;
 		MainCtrl.ctx = canvas.getContext('2d');
+
+		//set up listeners
 		MainCtrl.canvas.addEventListener('touchstart', MainCtrl.canvasTouchStartHandler, false);
 		MainCtrl.canvas.addEventListener('touchmove', MainCtrl.canvasTouchMoveHandler, false);
 		MainCtrl.canvas.addEventListener('touchend', MainCtrl.canvasTouchEndHandler, false);
 
-		var canvasRect = canvas.getBoundingClientRect();
+		for (var i = 0; i < MainCtrl.ROW_COUNT; i++) {
+			for (var j = 0; j < MainCtrl.COLUMN_COUNT; j++) {
+				//set up pointArray
+				MainCtrl.pointArray.push({	x:MainCtrl.DOTS_DISTANCE * (j + 1),
+											y:MainCtrl.DOTS_DISTANCE * (i + 1)});
+			}
+		}
 
 		var color = 0;
 		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
 			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
-				color = parseInt(Math.random() * 3);//5
-				var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.testPointArray[i * 4 + j]);
+				//set up dotsArray
+				color = parseInt(Math.random() * dots.Dot.COLORLIST.length);//5
+				var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.pointArray[i * 4 + j]);
 				MainCtrl.dotsArray.push(color);
 			}
 		}
@@ -76,20 +85,20 @@ this.dots = this.dots || {};
 			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
 				var color = MainCtrl.dotsArray[i * 4 + j];
 				if(color !== -1){
-					var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.testPointArray[i * 4 + j]);
+					var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.pointArray[i * 4 + j]);
 				} else {
 					console.log("asafsdafda");
 				}
 			}
-		}	
+		}
 	};
 
 	MainCtrl.drawConnectedLines = function() {
 		for (var i = 0; i < MainCtrl.connectedLinesPointArray.length - 1; i++) {
-			MainCtrl.drawLine(MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].x,
-			 MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i]].y,
-			 MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].x,
-			 MainCtrl.testPointArray[MainCtrl.connectedLinesPointArray[i + 1]].y);
+			MainCtrl.drawLine(MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i]].x,
+			 MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i]].y,
+			 MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i + 1]].x,
+			 MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i + 1]].y);
 		};
 	}
 
@@ -183,19 +192,19 @@ this.dots = this.dots || {};
 		MainCtrl.drawDots();
 		MainCtrl.drawConnectedLines();
 
-		var len = MainCtrl.testPointArray.length;
+		var len = MainCtrl.pointArray.length;
 		for (var i = len - 1; i >= 0; i--) {
 			var x = parseInt(e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft);	
 			var y = parseInt(e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop);	
-			if (x > MainCtrl.testPointArray[i].x - 20 && 
-				x < MainCtrl.testPointArray[i].x + 20 && 
-				y > MainCtrl.testPointArray[i].y - 20 &&
-				y < MainCtrl.testPointArray[i].y + 20 ) {
+			if (x > MainCtrl.pointArray[i].x - 20 && 
+				x < MainCtrl.pointArray[i].x + 20 && 
+				y > MainCtrl.pointArray[i].y - 20 &&
+				y < MainCtrl.pointArray[i].y + 20 ) {
 
 				if (MainCtrl.connectedLinesPointArray.length === 0) {
 
-					MainCtrl.touchStartPoint.x = MainCtrl.testPointArray[i].x;
-					MainCtrl.touchStartPoint.y = MainCtrl.testPointArray[i].y;
+					MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
+					MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
 					MainCtrl.currentTargetColor = MainCtrl.dotsArray[i];
 					MainCtrl.connectedLinesPointArray.push(i);	
 					break;
@@ -215,23 +224,23 @@ this.dots = this.dots || {};
 
 							var lastIndex = MainCtrl.connectedLinesPointArray[MainCtrl.connectedLinesPointArray.length - 1];
 							if(i === lastIndex - 1 && MainCtrl.checkExistDotLeft(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.testPointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.testPointArray[i].y;
+								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
+								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
 								MainCtrl.connectedLinesPointArray.push(i);	
 								break;
 							} else if (i === lastIndex + 1 && MainCtrl.checkExistDotRight(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.testPointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.testPointArray[i].y;
+								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
+								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
 								MainCtrl.connectedLinesPointArray.push(i);	
 								break;
 							} else if (i === lastIndex - 4 && MainCtrl.checkExistDotTop(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.testPointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.testPointArray[i].y;
+								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
+								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
 								MainCtrl.connectedLinesPointArray.push(i);	
 								break;
 							} else if (i === lastIndex + 4 && MainCtrl.checkExistDotBottom(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.testPointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.testPointArray[i].y;
+								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
+								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
 								MainCtrl.connectedLinesPointArray.push(i);	
 								break;		
 							}
@@ -383,12 +392,12 @@ this.dots = this.dots || {};
 				var fallCount = array[i * 4 + j].fallCount;
 				if(fallCount > 0){
 					var pos = {
-						x:MainCtrl.testPointArray[i * 4 + j].x, 
-						y:MainCtrl.testPointArray[i * 4 + j].y - (30 - timeCount) / 30 * (fallCount * 50)
+						x:MainCtrl.pointArray[i * 4 + j].x, 
+						y:MainCtrl.pointArray[i * 4 + j].y - (30 - timeCount) / 30 * (fallCount * 50)
 					};
 					var dot = new dots.Dot(MainCtrl.ctx, color, 20, pos);
 				} else {
-					var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.testPointArray[i * 4 + j]);
+					var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.pointArray[i * 4 + j]);
 				}
 			}
 		}	
