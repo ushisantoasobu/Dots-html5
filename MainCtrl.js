@@ -172,8 +172,10 @@ this.dots = this.dots || {};
 		/**/
 		MainCtrl.touchStartPoint.x = e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft;
 		MainCtrl.touchStartPoint.y = e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop;
+
 		console.log('startX:' + MainCtrl.touchStartPoint.x);
 		console.log('startY:' + MainCtrl.touchStartPoint.y);
+
 		/**/
 		if(!MainCtrl.playFlg){return;}
 		//もしドットの上であれば選択したものとする
@@ -184,7 +186,7 @@ this.dots = this.dots || {};
 	};
 
 	MainCtrl.canvasTouchMoveHandler = function(e){
-		console.log('move');
+
 		if(!MainCtrl.playFlg){return;}
 
 		//clear
@@ -298,60 +300,73 @@ this.dots = this.dots || {};
 
 	MainCtrl.canvasTouchEndHandler = function(e){
 
+		if(!MainCtrl.playFlg){return;}
+
 		event.preventDefault();
 
 		if(MainCtrl.connectedLinesPointArray.length > 1){
 
 			//クリアするdotがあるとき
 
-			// MainCtrl.setPlayDisable();
-			// MainCtrl.removeDots(MainCtrl.connectedLinesPointArray);
-			// MainCtrl.connectedLinesPointArray = []; //初期化
+			MainCtrl.setPlayDisable();
+			setTimeout(function(){
 
-			for (var i = MainCtrl.connectedLinesPointArray.length - 1; i >= 0; i--) {
-				MainCtrl.dotsArray[MainCtrl.connectedLinesPointArray[i]] = -1;	
-			}
+				// MainCtrl.removeDots(MainCtrl.connectedLinesPointArray);
+				// MainCtrl.connectedLinesPointArray = []; //初期化
 
-			//計算
-			var tempArray = [];
-			for (var i = 0; i < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT; i++) {
-				tempArray[i] = {color: -1, fallCount:0};
-			}
-			for (var j = 0; j < MainCtrl.dotsArray.length; j++) {
-				var count = MainCtrl.getFallCount(j);
-				var targetIndex = j + count * MainCtrl.COLUMN_COUNT;
-				if(targetIndex < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT) {
-					tempArray[targetIndex] = {color:MainCtrl.dotsArray[j], fallCount:count};
+				for (var i = MainCtrl.connectedLinesPointArray.length - 1; i >= 0; i--) {
+					MainCtrl.dotsArray[MainCtrl.connectedLinesPointArray[i]] = -1;	
 				}
-			}
 
-			for (var k = 0; k < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT; k++) {
-				if(tempArray[k].color === -1) {
-					console.log("aa:" + Math.floor(k / MainCtrl.COLUMN_COUNT));
-					console.log("bb:" + parseInt(Math.floor(k / MainCtrl.COLUMN_COUNT) + 1));
-					var count = parseInt(Math.floor(k / MainCtrl.COLUMN_COUNT) + 1);
-					tempArray[k] = {color:parseInt(Math.random() * 3), fallCount:count};//5;
+				//計算
+				var tempArray = [];
+				for (var i = 0; i < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT; i++) {
+					tempArray[i] = {color: -1, fallCount:0};
 				}
-			}
+				for (var j = 0; j < MainCtrl.dotsArray.length; j++) {
+					var count = MainCtrl.getFallCount(j);
+					var targetIndex = j + count * MainCtrl.COLUMN_COUNT;
+					if(targetIndex < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT) {
+						tempArray[targetIndex] = {color:MainCtrl.dotsArray[j], fallCount:count};
+					}
+				}
 
-			MainCtrl.deleteCount++;
-			MainCtrl.deleteDotsCount += MainCtrl.connectedLinesPointArray.length;
+				for (var k = 0; k < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT; k++) {
+					if(tempArray[k].color === -1) {
+						var count = parseInt(Math.floor(k / MainCtrl.COLUMN_COUNT) + 1);
+						tempArray[k] = {color:parseInt(Math.random() * 3), fallCount:count};//5;
+					}
+				}
 
-			console.log("MainCtrl.deleteCount:" + MainCtrl.deleteCount); 
-			console.log("MainCtrl.deleteDotsCount:" + MainCtrl.deleteDotsCount); 
+				MainCtrl.deleteCount++;
+				MainCtrl.deleteDotsCount += MainCtrl.connectedLinesPointArray.length;
 
-			MainCtrl.startFallAnimation(tempArray);
+				console.log("MainCtrl.deleteCount:" + MainCtrl.deleteCount); 
+				console.log("MainCtrl.deleteDotsCount:" + MainCtrl.deleteDotsCount); 
+
+				MainCtrl.startFallAnimation(tempArray);
+
+				//各種初期化
+				MainCtrl.currentTargetColor = -1;
+				MainCtrl.connectedLinesPointArray = [];	
+				MainCtrl.touchStartPoint = {x:0, y:0};
+
+			}, 1000 / 60 * 8);
 
 		} else {
 			//クリアするdotがないとき
 			MainCtrl.ctx.clearRect(0,0,MainCtrl.canvas.width,MainCtrl.canvas.height);
 			MainCtrl.drawDots();
+
+			MainCtrl.currentTargetColor = -1;
+			MainCtrl.connectedLinesPointArray = [];	
+			MainCtrl.touchStartPoint = {x:0, y:0};
 		}
 
 		//各種初期化
-		MainCtrl.currentTargetColor = -1;
-		MainCtrl.connectedLinesPointArray = [];	
-		MainCtrl.touchStartPoint = {x:0, y:0};
+		// MainCtrl.currentTargetColor = -1;
+		// MainCtrl.connectedLinesPointArray = [];	
+		// MainCtrl.touchStartPoint = {x:0, y:0};
 	};
 
 	MainCtrl.getFallCount = function(index) {
@@ -380,6 +395,7 @@ this.dots = this.dots || {};
 				for (var i = 0; i < MainCtrl.dotsArray.length; i++) {
 					MainCtrl.dotsArray[i] = array[i].color;
 				}
+				MainCtrl.setPlayEnable();
 			}
 			timeCount++;
 		}, 500 / MainCtrl.FPS); //1000 * 30 / 60
