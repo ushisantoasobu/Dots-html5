@@ -5,6 +5,11 @@ this.dots = this.dots || {};
 
 	var MainCtrl = {};
 
+
+	//-----------------------------------
+	// constant variables
+	//-----------------------------------
+
 	/** fps */
 	MainCtrl.FPS = 60;
 
@@ -14,6 +19,14 @@ this.dots = this.dots || {};
 	/** colomun count */
 	MainCtrl.COLUMN_COUNT = 4;
 
+	/** explanation */
+	MainCtrl.DOTS_DISTANCE = 50;
+
+
+	//-----------------------------------
+	// variables
+	//-----------------------------------
+
 	/** canvas */
 	MainCtrl.canvas;
 
@@ -21,16 +34,13 @@ this.dots = this.dots || {};
 	MainCtrl.ctx;
 
 	/** count of delete total dots */
-	MainCtrl.deleteDotsCount = 0;
+	MainCtrl._deleteDotsCount = 0;
 
 	/** count of delete action */
-	MainCtrl.deleteCount = 0;
+	MainCtrl._deleteCount = 0;
 
 	/** dots arrat */
 	MainCtrl.dotsArray = [];
-
-	/** explanation */
-	MainCtrl.DOTS_DISTANCE = 50;
 
 	//現在対象にインデックスの配列
 	MainCtrl.currentTargetIndexArray = [];
@@ -49,6 +59,13 @@ this.dots = this.dots || {};
 
 	/** explanation */
  	MainCtrl.pointArray = [];
+
+ 	MainCtrl.scoreEvent;
+
+
+	//-----------------------------------
+	// function
+	//-----------------------------------
 
 	/**
 	 * 初期状態セット
@@ -82,6 +99,10 @@ this.dots = this.dots || {};
 				MainCtrl.dotsArray.push(color);
 			}
 		}
+
+		//set up events
+		MainCtrl.scoreEvent = document.createEvent('Events');
+		MainCtrl.scoreEvent.initEvent('mainctrl_score_event', true, true);
 	};
 
 	/**
@@ -423,11 +444,12 @@ this.dots = this.dots || {};
 					}
 				}
 
-				MainCtrl.deleteCount++;
-				MainCtrl.deleteDotsCount += MainCtrl.connectedLinesPointArray.length;
+				MainCtrl._deleteCount++;
+				MainCtrl._deleteDotsCount += MainCtrl.connectedLinesPointArray.length;
 
-				console.log("MainCtrl.deleteCount:" + MainCtrl.deleteCount); 
-				console.log("MainCtrl.deleteDotsCount:" + MainCtrl.deleteDotsCount); 
+				console.log("MainCtrl._deleteCount:" + MainCtrl._deleteCount); 
+				console.log("MainCtrl._deleteDotsCount:" + MainCtrl._deleteDotsCount);
+				document.dispatchEvent(MainCtrl.scoreEvent);
 
 				MainCtrl.startFallAnimation(tempArray);
 
@@ -510,6 +532,14 @@ this.dots = this.dots || {};
 			}
 		}	
 	};
+
+	MainCtrl.getDeleteCount = function(){
+		return MainCtrl._deleteCount;
+	};
+
+	MainCtrl.getDeleteDotsCount = function(){
+		return MainCtrl._deleteDotsCount;
+	}
 
 	/**
 	 * プレイ可能状態にする

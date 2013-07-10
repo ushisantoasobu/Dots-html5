@@ -10,7 +10,7 @@
 <body>
 	<p>dots</p>
 	<p id="deleteTotalCount">0</p>
-	<p id="deleteCont">0</p>
+	<p id="deleteCount">0</p>
 	<canvas id="dotsCanvas" width='320' height='320'></canvas>
 
 	<script src='./dot.js'></script>	
@@ -21,11 +21,18 @@
 	function init(){
 		var canvas = document.getElementById('dotsCanvas');
 		dots.MainCtrl.setInitialSetting(canvas);
+
 		console.log(canvas.offsetTop);
 		console.log(canvas.offsetLeft);
 	}
 
+	function scoreEventHandler(e){
+		document.getElementById('deleteCount').innerHTML = '消した回数 : ' + dots.MainCtrl.getDeleteCount();
+		document.getElementById('deleteTotalCount').innerHTML = '消したドットの総数 : ' + dots.MainCtrl.getDeleteDotsCount();
+	}
+
 	window.addEventListener('load', init, false);
+	window.addEventListener('mainctrl_score_event', scoreEventHandler, false);
 
 	</script>
 </body>
