@@ -22,6 +22,9 @@ this.dots = this.dots || {};
 	/** explanation */
 	MainCtrl.DOTS_DISTANCE = 50;
 
+	/** touch range(radius) */
+	MainCtrl.TOUCH_RANGE = 25;
+
 
 	//-----------------------------------
 	// variables
@@ -239,18 +242,29 @@ this.dots = this.dots || {};
 	 * @return explanation
 	 */
 	MainCtrl.canvasTouchStartHandler = function(e){
-		/**/
+
+		if(!MainCtrl.playFlg){return;}
+
 		MainCtrl.touchStartPoint.x = e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft;
 		MainCtrl.touchStartPoint.y = e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop;
 
 		console.log('startX:' + MainCtrl.touchStartPoint.x);
 		console.log('startY:' + MainCtrl.touchStartPoint.y);
 
-		/**/
-		if(!MainCtrl.playFlg){return;}
-		//もしドットの上であれば選択したものとする
+		var len = MainCtrl.pointArray.length;
+		for (var i = len - 1; i >= 0; i--) {
+			if (MainCtrl.touchStartPoint.x > MainCtrl.pointArray[i].x - MainCtrl.TOUCH_RANGE && 
+				MainCtrl.touchStartPoint.x < MainCtrl.pointArray[i].x + MainCtrl.TOUCH_RANGE && 
+				MainCtrl.touchStartPoint.y > MainCtrl.pointArray[i].y - MainCtrl.TOUCH_RANGE &&
+				MainCtrl.touchStartPoint.y < MainCtrl.pointArray[i].y + MainCtrl.TOUCH_RANGE ) {
 
-		MainCtrl.connectedLinesPointArray = [];
+				MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
+				MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
+				MainCtrl.currentTargetColor = MainCtrl.dotsArray[i];
+				MainCtrl.connectedLinesPointArray.push(i);
+				break;
+			}
+		}
 
 		event.preventDefault();
 	};
@@ -274,10 +288,10 @@ this.dots = this.dots || {};
 		for (var i = len - 1; i >= 0; i--) {
 			var x = parseInt(e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft);	
 			var y = parseInt(e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop);	
-			if (x > MainCtrl.pointArray[i].x - 20 && 
-				x < MainCtrl.pointArray[i].x + 20 && 
-				y > MainCtrl.pointArray[i].y - 20 &&
-				y < MainCtrl.pointArray[i].y + 20 ) {
+			if (x > MainCtrl.pointArray[i].x - MainCtrl.TOUCH_RANGE && 
+				x < MainCtrl.pointArray[i].x + MainCtrl.TOUCH_RANGE && 
+				y > MainCtrl.pointArray[i].y - MainCtrl.TOUCH_RANGE &&
+				y < MainCtrl.pointArray[i].y + MainCtrl.TOUCH_RANGE ) {
 
 				if (MainCtrl.connectedLinesPointArray.length === 0) {
 
