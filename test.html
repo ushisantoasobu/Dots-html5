@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>dots demo</title>
+<meta name="keywords" content="">
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+	<p id="deleteTotalCount">0</p>
+	<p id="deleteCount">0</p>
+	<canvas id="dotsCanvas" width='320' height='320'></canvas>
+
+	<script src='./Dot.js'></script>	
+	<script src='./line.js'></script>	
+	<script src='./Container.js'></script>
+	<script src='./Stage.js'></script>
+	
+	<script type="text/javascript">
+
+	function init(){
+		var canvas = document.getElementById('dotsCanvas');
+		var stage = new dots.Stage(canvas);
+		var container = new dots.Container();
+		// var dot1 = new dots.Dot(2, 65, {x:100, y:100});
+		// var dot2 = new dots.Dot(1, 55, {x:145, y:176});
+		var dot3 = new dots.Dot(100, 100, 50, 1);
+		var line1 = new dots.Line(0, 0, 300, 300);
+		// stage.addChild(dot1);
+		// stage.addChild(dot2);
+		stage.addChild(container);
+		stage.addChild(line1);
+		container.x = 100;
+		container.y = 100;
+		container.addChild(dot3);
+
+		dot3.startAnimation(0,0,146,170,60,2000);
+
+		setInterval(function(){
+			stage.update();
+		}, 1000 / 60);
+	}
+
+	window.addEventListener('load', init, false);
+
+	</script>
+</body>
+</html>

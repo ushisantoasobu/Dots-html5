@@ -31,10 +31,13 @@ this.dots = this.dots || {};
 	//-----------------------------------
 
 	/** canvas */
-	MainCtrl.canvas;
+	MainCtrl.stage;
 
-	/** context */
-	MainCtrl.ctx;
+	/** explanation */
+	MainCtrl.lineContainer;
+
+	/** explanation */
+	MainCtrl.dotContainer;
 
 	/** count of delete total dots */
 	MainCtrl._deleteDotsCount = 0;
@@ -48,8 +51,10 @@ this.dots = this.dots || {};
 	//現在対象にインデックスの配列
 	MainCtrl.currentTargetIndexArray = [];
 
+	MainCtrl.selectedDotsArray = [];
+
 	//
-	MainCtrl.connectedLinesPointArray = [];
+	//MainCtrl.connectedLinesPointArray = [];
 
 	/** 現在選択中の色 */
 	MainCtrl.currentTargetColor = -1;
@@ -77,28 +82,30 @@ this.dots = this.dots || {};
 	 */
 	MainCtrl.setInitialSetting = function(canvas){
 
-		MainCtrl.canvas = canvas;
-		MainCtrl.ctx = canvas.getContext('2d');
+		MainCtrl.stage = new dots.Stage(canvas);
 
-		//set up listeners
-		MainCtrl.canvas.addEventListener('touchstart', MainCtrl.canvasTouchStartHandler, false);
-		MainCtrl.canvas.addEventListener('touchmove', MainCtrl.canvasTouchMoveHandler, false);
-		MainCtrl.canvas.addEventListener('touchend', MainCtrl.canvasTouchEndHandler, false);
+		MainCtrl.lineContainer = new dots.Container();
+		MainCtrl.dotContainer = new dots.Container();
+		MainCtrl.stage.addChild(MainCtrl.dotContainer);
+		MainCtrl.stage.addChild(MainCtrl.lineContainer);
 
+		//setup listeners
+		canvas.addEventListener('touchstart', MainCtrl.canvasTouchStartHandler, false);
+		canvas.addEventListener('touchmove', MainCtrl.canvasTouchMoveHandler, false);
+		canvas.addEventListener('touchend', MainCtrl.canvasTouchEndHandler, false);
+
+		//setup dots
+		var color = 0;
 		for (var i = 0; i < MainCtrl.ROW_COUNT; i++) {
 			for (var j = 0; j < MainCtrl.COLUMN_COUNT; j++) {
-				//set up pointArray
-				MainCtrl.pointArray.push({	x:MainCtrl.DOTS_DISTANCE * (j + 1),
-											y:MainCtrl.DOTS_DISTANCE * (i + 1)});
-			}
-		}
 
-		var color = 0;
-		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
-			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
-				//set up dotsArray
-				color = parseInt(Math.random() * dots.Dot.COLORLIST.length);//5
-				var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.pointArray[i * 4 + j]);
+				color = parseInt(Math.random() * dots.Dot.COLORLIST.length);
+				var dot = new dots.Dot(	MainCtrl.DOTS_DISTANCE * (j + 1), 
+										MainCtrl.DOTS_DISTANCE * (i + 1), 
+										20, 
+										color);
+				dot.positionIndex = i + MainCtrl.ROW_COUNT * j;
+				MainCtrl.dotContainer.addChild(dot);
 				MainCtrl.dotsArray.push(color);
 			}
 		}
@@ -106,6 +113,10 @@ this.dots = this.dots || {};
 		//set up events
 		MainCtrl.scoreEvent = document.createEvent('Events');
 		MainCtrl.scoreEvent.initEvent('mainctrl_score_event', true, true);
+
+		setInterval(function(){
+			MainCtrl.stage.update();
+		}, 1000 / 60);
 	};
 
 	/**
@@ -113,59 +124,9 @@ this.dots = this.dots || {};
 	 */
 	MainCtrl.resetData = function(){
 		MainCtrl.currentTargetColor = -1;
-		MainCtrl.connectedLinesPointArray = [];
+		MainCtrl.selectedDotsArray = [];
 		MainCtrl.touchStartPoint = {x:0, y:0};
 	}
-
-	/**
-	 * explanation
-	 * 
-	 * @param explanation
-	 * @return explanation
-	 */
-	MainCtrl.drawDots = function() {
-		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
-			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
-				var color = MainCtrl.dotsArray[i * 4 + j];
-				if(color !== -1){
-					var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.pointArray[i * 4 + j]);
-				} else {
-					console.log("asafsdafda");
-				}
-			}
-		}
-	};
-
-	/**
-	 * explanation
-	 * 
-	 * @param explanation
-	 * @return explanation
-	 */
-	MainCtrl.drawConnectedLines = function() {
-		for (var i = 0; i < MainCtrl.connectedLinesPointArray.length - 1; i++) {
-			MainCtrl.drawLine(MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i]].x,
-			 MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i]].y,
-			 MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i + 1]].x,
-			 MainCtrl.pointArray[MainCtrl.connectedLinesPointArray[i + 1]].y);
-		};
-	}
-
-	/**
-	 * explanation
-	 * 
-	 * @param explanation
-	 * @return explanation
-	 */
-	MainCtrl.drawLine = function(fromX, fromY, toX, toY) {
-		MainCtrl.ctx.strokeStyle = 'gray';
-		MainCtrl.ctx.lineWidth = 5;
-		MainCtrl.ctx.lineCap = 'round';
-		MainCtrl.ctx.beginPath();
-		MainCtrl.ctx.moveTo(fromX, fromY);
-		MainCtrl.ctx.lineTo(toX, toY);
-		MainCtrl.ctx.stroke();
-	};
 
 	/**
 	 * 新しいドットを追加する
@@ -245,23 +206,22 @@ this.dots = this.dots || {};
 
 		if(!MainCtrl.playFlg){return;}
 
-		MainCtrl.touchStartPoint.x = e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft;
-		MainCtrl.touchStartPoint.y = e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop;
+		MainCtrl.touchStartPoint.x = e.changedTouches[0].screenX - MainCtrl.stage.getCanvas().offsetLeft;
+		MainCtrl.touchStartPoint.y = e.changedTouches[0].screenY - MainCtrl.stage.getCanvas().offsetTop;
 
-		console.log('startX:' + MainCtrl.touchStartPoint.x);
-		console.log('startY:' + MainCtrl.touchStartPoint.y);
-
-		var len = MainCtrl.pointArray.length;
+		var len = MainCtrl.dotContainer.getNumChildren();
 		for (var i = len - 1; i >= 0; i--) {
-			if (MainCtrl.touchStartPoint.x > MainCtrl.pointArray[i].x - MainCtrl.TOUCH_RANGE && 
-				MainCtrl.touchStartPoint.x < MainCtrl.pointArray[i].x + MainCtrl.TOUCH_RANGE && 
-				MainCtrl.touchStartPoint.y > MainCtrl.pointArray[i].y - MainCtrl.TOUCH_RANGE &&
-				MainCtrl.touchStartPoint.y < MainCtrl.pointArray[i].y + MainCtrl.TOUCH_RANGE ) {
+			var dot = MainCtrl.dotContainer.getChildAt(i);
+			if (MainCtrl.touchStartPoint.x > dot.x - MainCtrl.TOUCH_RANGE && 
+				MainCtrl.touchStartPoint.x < dot.x + MainCtrl.TOUCH_RANGE && 
+				MainCtrl.touchStartPoint.y > dot.y - MainCtrl.TOUCH_RANGE &&
+				MainCtrl.touchStartPoint.y < dot.y + MainCtrl.TOUCH_RANGE ) {
 
-				MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
-				MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
-				MainCtrl.currentTargetColor = MainCtrl.dotsArray[i];
-				MainCtrl.connectedLinesPointArray.push(i);
+				MainCtrl.touchStartPoint.x = dot.x;
+				MainCtrl.touchStartPoint.y = dot.y;
+				MainCtrl.currentTargetColor = dot.color;
+				dot.selected = true;
+				selectedDotsArray.push(dot);
 				break;
 			}
 		}
@@ -279,61 +239,121 @@ this.dots = this.dots || {};
 
 		if(!MainCtrl.playFlg){return;}
 
-		//clear
-		MainCtrl.ctx.clearRect(0,0,MainCtrl.canvas.width,MainCtrl.canvas.height);
-		MainCtrl.drawDots();
-		MainCtrl.drawConnectedLines();
+		//線の描画は一旦削除
+		var lineCount = MainCtrl.lineContainer.getNumChildren();
+		if(lineCount > 0){
+			MainCtrl.lineContainer.removeChildAt(lineCount - 1);
+		}
 
-		var len = MainCtrl.pointArray.length;
+		var len = MainCtrl.dotContainer.getNumChildren();
 		for (var i = len - 1; i >= 0; i--) {
-			var x = parseInt(e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft);	
-			var y = parseInt(e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop);	
-			if (x > MainCtrl.pointArray[i].x - MainCtrl.TOUCH_RANGE && 
-				x < MainCtrl.pointArray[i].x + MainCtrl.TOUCH_RANGE && 
-				y > MainCtrl.pointArray[i].y - MainCtrl.TOUCH_RANGE &&
-				y < MainCtrl.pointArray[i].y + MainCtrl.TOUCH_RANGE ) {
+			var x = parseInt(e.changedTouches[0].screenX - MainCtrl.stage.getCanvas().offsetLeft);	
+			var y = parseInt(e.changedTouches[0].screenY - MainCtrl.stage.getCanvas().offsetTop);
+			var dot = MainCtrl.dotContainer.getChildAt(i);
 
-				if (MainCtrl.connectedLinesPointArray.length === 0) {
+			//いずれかのドットに触れたとき
+			if (x > dot.x - MainCtrl.TOUCH_RANGE && 
+				x < dot.x + MainCtrl.TOUCH_RANGE && 
+				y > dot.y - MainCtrl.TOUCH_RANGE &&
+				y < dot.y + MainCtrl.TOUCH_RANGE ) {
 
-					MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
-					MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
-					MainCtrl.currentTargetColor = MainCtrl.dotsArray[i];
-					MainCtrl.connectedLinesPointArray.push(i);	
+				var selectedDotsCount = MainCtrl.selectedDotsArray.length;
+				if (selectedDotsCount === 0) {
+					//まだいずれのドットも選択状態にないとき
+
+					MainCtrl.touchStartPoint.x = dot.x;
+					MainCtrl.touchStartPoint.y = dot.y;
+					MainCtrl.currentTargetColor = dot.color;
+					dot.selected = true;
+					MainCtrl.selectedDotsArray.push(dot);	
 					break;
 
 				} else {
+					//すでにいずれかのドットが選択状態にあるとき
 
-					if (MainCtrl.currentTargetColor === MainCtrl.dotsArray[i]){
+					if (MainCtrl.currentTargetColor === dot.color){
 
-						var flg = false;
-						for (var j = MainCtrl.connectedLinesPointArray.length - 1; j >= 0; j--) {
-							if(MainCtrl.connectedLinesPointArray[j] === i){
-								flg = true;
-								break;
-							}
-						}
-						if (!flg) {
+						//まだ選択されたものでないとき
+						if (dot.selected === false) {
 
-							var lastIndex = MainCtrl.connectedLinesPointArray[MainCtrl.connectedLinesPointArray.length - 1];
-							if(i === lastIndex - 1 && MainCtrl.checkExistDotLeft(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
-								MainCtrl.connectedLinesPointArray.push(i);	
+							var lastDot = MainCtrl.selectedDotsArray[selectedDotsCount - 1];
+							var lastIndex = lastDot.positionIndex;
+
+							if(dot.positionIndex === lastIndex - 1 && MainCtrl.checkExistDotLeft(lastIndex)) {
+
+								MainCtrl.touchStartPoint.x = dot.x;
+								MainCtrl.touchStartPoint.y = dot.y;
+								dot.selected = true;
+								MainCtrl.selectedDotsArray.push(dot);
+
+								//線の描画
+								var lineCount = MainCtrl.lineContainer.getNumChildren();
+								var line = MainCtrl.lineContainer.getChildAt(lineCount - 1);
+								var line = new dots.Line(
+									lastDot.x,
+							 		lastDot.y,
+							 		dot.x,
+							 		dot.y
+							 	);
+							 	MainCtrl.lineContainer.addChild(line);
+
 								break;
-							} else if (i === lastIndex + 1 && MainCtrl.checkExistDotRight(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
-								MainCtrl.connectedLinesPointArray.push(i);	
+							} else if (dot.positionIndex === lastIndex + 1 && MainCtrl.checkExistDotRight(lastIndex)) {
+
+								MainCtrl.touchStartPoint.x = dot.x;
+								MainCtrl.touchStartPoint.y = dot.y;
+								dot.selected = true;
+								MainCtrl.selectedDotsArray.push(dot);
+
+								//線の描画
+								var lineCount = MainCtrl.lineContainer.getNumChildren();
+								var line = MainCtrl.lineContainer.getChildAt(lineCount - 1);
+								var line = new dots.Line(
+									lastDot.x,
+							 		lastDot.y,
+							 		dot.x,
+							 		dot.y
+							 	);
+							 	MainCtrl.lineContainer.addChild(line);
+
 								break;
-							} else if (i === lastIndex - 4 && MainCtrl.checkExistDotTop(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
-								MainCtrl.connectedLinesPointArray.push(i);	
+							} else if (dot.positionIndex === lastIndex - 4 && MainCtrl.checkExistDotTop(lastIndex)) {
+
+								MainCtrl.touchStartPoint.x = dot.x;
+								MainCtrl.touchStartPoint.y = dot.y;
+								dot.selected = true;
+								MainCtrl.selectedDotsArray.push(dot);
+
+								//線の描画
+								var lineCount = MainCtrl.lineContainer.getNumChildren();
+								var line = MainCtrl.lineContainer.getChildAt(lineCount - 1);
+								var line = new dots.Line(
+									lastDot.x,
+							 		lastDot.y,
+							 		dot.x,
+							 		dot.y
+							 	);
+							 	MainCtrl.lineContainer.addChild(line);
+
 								break;
-							} else if (i === lastIndex + 4 && MainCtrl.checkExistDotBottom(lastIndex)) {
-								MainCtrl.touchStartPoint.x = MainCtrl.pointArray[i].x;
-								MainCtrl.touchStartPoint.y = MainCtrl.pointArray[i].y;
-								MainCtrl.connectedLinesPointArray.push(i);	
+							} else if (dot.positionIndex === lastIndex + 4 && MainCtrl.checkExistDotBottom(lastIndex)) {
+
+								MainCtrl.touchStartPoint.x = dot.x;
+								MainCtrl.touchStartPoint.y = dot.y;
+								dot.selected = true;
+								MainCtrl.selectedDotsArray.push(dot);
+
+								//線の描画
+								var lineCount = MainCtrl.lineContainer.getNumChildren();
+								var line = MainCtrl.lineContainer.getChildAt(lineCount - 1);
+								var line = new dots.Line(
+									lastDot.x,
+							 		lastDot.y,
+							 		dot.x,
+							 		dot.y
+							 	);
+							 	MainCtrl.lineContainer.addChild(line);
+
 								break;		
 							}
 						}
@@ -342,10 +362,16 @@ this.dots = this.dots || {};
 			}
 		}
 
-		MainCtrl.drawLine(MainCtrl.touchStartPoint.x,
-		 MainCtrl.touchStartPoint.y,
-		 e.changedTouches[0].screenX - MainCtrl.canvas.offsetLeft,
-		 e.changedTouches[0].screenY - MainCtrl.canvas.offsetTop)
+
+		var line = new dots.Line(
+									MainCtrl.touchStartPoint.x,
+							 		MainCtrl.touchStartPoint.y,
+							 		e.changedTouches[0].screenX - MainCtrl.stage.getCanvas().offsetLeft,
+							 		e.changedTouches[0].screenY - MainCtrl.stage.getCanvas().offsetTop
+							 	);
+
+		MainCtrl.lineContainer.addChild(line);
+
 
 		//１つでも選択してある状態であれば線を描画する
 
@@ -354,7 +380,7 @@ this.dots = this.dots || {};
 		//もしそのdotが最初に選択したdotと同じ色のものだったら
 
 		event.preventDefault();
-	}
+	};
 
 	/**
 	 * explanation
@@ -422,13 +448,27 @@ this.dots = this.dots || {};
 
 		if(!MainCtrl.playFlg){return;}
 
+
+		MainCtrl.lineContainer.removeAllChildren();
+
 		event.preventDefault();
 
-		if(MainCtrl.connectedLinesPointArray.length > 1){
+		if(MainCtrl.selectedDotsArray.length > 1){
 
 			//クリアするdotがあるとき
 
 			MainCtrl.setPlayDisable();
+
+			//選択したものは削除する
+			for (var i = MainCtrl.dotContainer.getNumChildren() - 1; i >= 0; i--) {
+				var dot = MainCtrl.dotContainer.getChildAt(i);
+				if(dot.selected === true){
+					MainCtrl.dotContainer.removeChildAt(i);
+				}
+			}
+			
+
+			/*
 			setTimeout(function(){
 
 				// MainCtrl.removeDots(MainCtrl.connectedLinesPointArray);
@@ -458,23 +498,23 @@ this.dots = this.dots || {};
 					}
 				}
 
-				MainCtrl._deleteCount++;
-				MainCtrl._deleteDotsCount += MainCtrl.connectedLinesPointArray.length;
-
-				console.log("MainCtrl._deleteCount:" + MainCtrl._deleteCount); 
-				console.log("MainCtrl._deleteDotsCount:" + MainCtrl._deleteDotsCount);
-				document.dispatchEvent(MainCtrl.scoreEvent);
 
 				MainCtrl.startFallAnimation(tempArray);
 
-				MainCtrl.resetData();
 
 			}, 1000 / MainCtrl.FPS * 8);
+			*/
+
+			//点数の更新
+			MainCtrl._deleteCount++;
+			MainCtrl._deleteDotsCount += MainCtrl.selectedDotsArray.length;
+
+			document.dispatchEvent(MainCtrl.scoreEvent);
+			
+			MainCtrl.resetData();
 
 		} else {
 			//クリアするdotがないとき
-			MainCtrl.ctx.clearRect(0,0,MainCtrl.canvas.width,MainCtrl.canvas.height);
-			MainCtrl.drawDots();
 
 			MainCtrl.resetData();
 		}
@@ -508,7 +548,7 @@ this.dots = this.dots || {};
 		var timeCount = 0;
 		var timer = setInterval(function(){
 
-			MainCtrl.ctx.clearRect(0,0,MainCtrl.canvas.width,MainCtrl.canvas.height);
+			MainCtrl.ctx.clearRect(0,0,MainCtrl.stage.getCanvas().width,MainCtrl.stage.getCanvas().height);
 			MainCtrl.drawAnimationDots(array, timeCount);
 
 			if(timeCount === 30){
@@ -539,9 +579,9 @@ this.dots = this.dots || {};
 						x:MainCtrl.pointArray[i * 4 + j].x, 
 						y:MainCtrl.pointArray[i * 4 + j].y - (30 - timeCount) / 30 * (fallCount * 50)
 					};
-					var dot = new dots.Dot(MainCtrl.ctx, color, 20, pos);
+					var dot = new dots.Dot(pos.x, pos.y, 20, color);
 				} else {
-					var dot = new dots.Dot(MainCtrl.ctx, color, 20, MainCtrl.pointArray[i * 4 + j]);
+					var dot = new dots.Dot(MainCtrl.pointArray[i * 4 + j].x, MainCtrl.pointArray[i * 4 + j].y, 20, color);
 				}
 			}
 		}	
