@@ -53,9 +53,6 @@ this.dots = this.dots || {};
 
 	MainCtrl.selectedDotsArray = [];
 
-	//
-	//MainCtrl.connectedLinesPointArray = [];
-
 	/** 現在選択中の色 */
 	MainCtrl.currentTargetColor = -1;
 
@@ -64,9 +61,6 @@ this.dots = this.dots || {};
 
 	/**  */
 	MainCtrl.touchStartPoint = {x:0, y:0};
-
-	/** explanation */
- 	MainCtrl.pointArray = [];
 
  	MainCtrl.scoreEvent;
 
@@ -104,9 +98,9 @@ this.dots = this.dots || {};
 										MainCtrl.DOTS_DISTANCE * (i + 1), 
 										20, 
 										color);
-				dot.positionIndex = i + MainCtrl.ROW_COUNT * j;
+				dot.positionIndex = j + MainCtrl.ROW_COUNT * i;
 				MainCtrl.dotContainer.addChild(dot);
-				MainCtrl.dotsArray.push(color);
+				// MainCtrl.dotsArray.push(color);
 			}
 		}
 
@@ -457,53 +451,75 @@ this.dots = this.dots || {};
 
 			//クリアするdotがあるとき
 
-			MainCtrl.setPlayDisable();
+			// MainCtrl.setPlayDisable();
+
+			// var columunIndex;
+			//更新するまえに位置インデックス
+			var previousIndex;
+
+			var removedIndexArray = [];
+			// for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
+			// 	removedIndexArray[i] = 0;
+			// }
 
 			//選択したものは削除する
 			for (var i = MainCtrl.dotContainer.getNumChildren() - 1; i >= 0; i--) {
 				var dot = MainCtrl.dotContainer.getChildAt(i);
 				if(dot.selected === true){
+					removedIndexArray.push(dot.positionIndex);
 					MainCtrl.dotContainer.removeChildAt(i);
 				}
 			}
-			
 
-			/*
-			setTimeout(function(){
+			//削除されなかったものについて、位置インデックスの更新と位置移動アニメーション
+			for (var i = MainCtrl.dotContainer.getNumChildren() - 1; i >= 0; i--) {
+				var dot = MainCtrl.dotContainer.getChildAt(i);
+				// columunIndex = dot.positionIndex % MainCtrl.COLUMN_COUNT;
+				previousIndex = dot.positionIndex;
+				dot.positionIndex = MainCtrl.updateIndex(dot.positionIndex, removedIndexArray);
+				dot.startAnimation(	dot.x, 
+									dot.y, 
+									dot.x, 
+									dot.y + (dot.positionIndex - previousIndex) / MainCtrl.COLUMN_COUNT * MainCtrl.DOTS_DISTANCE,
+									MainCtrl.FPS,
+									500,
+									function(){console.log("test");});
+			}
 
-				// MainCtrl.removeDots(MainCtrl.connectedLinesPointArray);
-				// MainCtrl.connectedLinesPointArray = []; //初期化
-
-				for (var i = MainCtrl.connectedLinesPointArray.length - 1; i >= 0; i--) {
-					MainCtrl.dotsArray[MainCtrl.connectedLinesPointArray[i]] = -1;	
-				}
-
-				//計算
-				var tempArray = [];
-				for (var i = 0; i < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT; i++) {
-					tempArray[i] = {color: -1, fallCount:0};
-				}
-				for (var j = 0; j < MainCtrl.dotsArray.length; j++) {
-					var count = MainCtrl.getFallCount(j);
-					var targetIndex = j + count * MainCtrl.COLUMN_COUNT;
-					if(targetIndex < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT) {
-						tempArray[targetIndex] = {color:MainCtrl.dotsArray[j], fallCount:count};
+			//新しく生成の必要なdotの位置インデックスを決定する
+			var existFlg;
+			var newIndexArray = [];
+			for (var i = 0; i < MainCtrl.ROW_COUNT * MainCtrl.COLUMN_COUNT; i++) {
+				existFlg = false;
+				for (var j = 0; j < MainCtrl.dotContainer.getNumChildren(); j++) {
+					if(i === MainCtrl.dotContainer.getChildAt(j).positionIndex){
+						existFlg = true;
+						break;
 					}
 				}
-
-				for (var k = 0; k < MainCtrl.COLUMN_COUNT * MainCtrl.ROW_COUNT; k++) {
-					if(tempArray[k].color === -1) {
-						var count = parseInt(Math.floor(k / MainCtrl.COLUMN_COUNT) + 1);
-						tempArray[k] = {color:parseInt(Math.random() * 3), fallCount:count};//5;
-					}
+				if(existFlg === false){
+					newIndexArray.push(i);
 				}
+			}
 
-
-				MainCtrl.startFallAnimation(tempArray);
-
-
-			}, 1000 / MainCtrl.FPS * 8);
-			*/
+			//新しくdotを生成する
+			for (var i = 0; i < newIndexArray.length; i++) {
+				color = parseInt(Math.random() * dots.Dot.COLORLIST.length);
+				var dot = new dots.Dot(	MainCtrl.DOTS_DISTANCE * (newIndexArray[i] % MainCtrl.COLUMN_COUNT + 1), 
+										MainCtrl.DOTS_DISTANCE * (Math.floor(newIndexArray[i] / MainCtrl.COLUMN_COUNT) + 1), 
+										20, 
+										color);
+				dot.positionIndex = newIndexArray[i];
+				// columunIndex = dot.positionIndex % MainCtrl.COLUMN_COUNT;
+				MainCtrl.dotContainer.addChild(dot);
+				dot.startAnimation(	dot.x, 
+									dot.y - MainCtrl.getDeletedCountForColumn(dot.positionIndex, removedIndexArray) *  MainCtrl.DOTS_DISTANCE,
+									dot.x, 
+									dot.y,
+									MainCtrl.FPS,
+									500,
+									function(){console.log("test");});
+			}
 
 			//点数の更新
 			MainCtrl._deleteCount++;
@@ -520,71 +536,31 @@ this.dots = this.dots || {};
 		}
 	};
 
-	/**
-	 * explanation
-	 * 
-	 * @param index
-	 * @return count
-	 */
-	MainCtrl.getFallCount = function(index) {
-		var count = 0;
-		var div = Math.floor(index / MainCtrl.COLUMN_COUNT); 	//剰
-		var remainder = index % MainCtrl.COLUMN_COUNT; 			//余
-		for (var j = MainCtrl.ROW_COUNT; j > div; j--) {
-			if(MainCtrl.dotsArray[(j - 1) * MainCtrl.COLUMN_COUNT + remainder] === -1) {
+	//このメソッドださいorz
+	MainCtrl.updateIndex = function(index, removedIndexArray){
+		var count = 0;	
+		for (var i = 0; i < removedIndexArray.length; i++) {
+			//同じ列で　かつ自分よりも低いインデックスのもの
+			if((index % MainCtrl.COLUMN_COUNT === removedIndexArray[i] % MainCtrl.COLUMN_COUNT) &&
+				index < removedIndexArray[i] ){
 				count++;
 			}
 		}
+
+		return index + count * MainCtrl.COLUMN_COUNT;
+	};
+
+	//このメソッドださいorz
+	MainCtrl.getDeletedCountForColumn = function(index, removedIndexArray){
+		var count = 0;	
+		for (var i = 0; i < removedIndexArray.length; i++) {
+			//同じ列で　かつ自分よりも低いインデックスのもの
+			if(index % MainCtrl.COLUMN_COUNT === removedIndexArray[i] % MainCtrl.COLUMN_COUNT){
+				count++;
+			}
+		}
+
 		return count;
-	};
-
-	/**
-	 * explanation
-	 * 
-	 * @param explanation
-	 */
-	MainCtrl.startFallAnimation = function(array) {
-
-		var timeCount = 0;
-		var timer = setInterval(function(){
-
-			MainCtrl.ctx.clearRect(0,0,MainCtrl.stage.getCanvas().width,MainCtrl.stage.getCanvas().height);
-			MainCtrl.drawAnimationDots(array, timeCount);
-
-			if(timeCount === 30){
-				console.log("タイマー削除");
-				clearInterval(timer);
-				for (var i = 0; i < MainCtrl.dotsArray.length; i++) {
-					MainCtrl.dotsArray[i] = array[i].color;
-				}
-				MainCtrl.setPlayEnable();
-			}
-			timeCount++;
-		}, 500 / MainCtrl.FPS); //1000 * 30 / 60
-	};
-
-	/**
-	 * explanation
-	 * 
-	 * @param explanation
-	 * @param explanation
-	 */
-	MainCtrl.drawAnimationDots = function(array, timeCount) {
-		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
-			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
-				var color = array[i * 4 + j].color;
-				var fallCount = array[i * 4 + j].fallCount;
-				if(fallCount > 0){
-					var pos = {
-						x:MainCtrl.pointArray[i * 4 + j].x, 
-						y:MainCtrl.pointArray[i * 4 + j].y - (30 - timeCount) / 30 * (fallCount * 50)
-					};
-					var dot = new dots.Dot(pos.x, pos.y, 20, color);
-				} else {
-					var dot = new dots.Dot(MainCtrl.pointArray[i * 4 + j].x, MainCtrl.pointArray[i * 4 + j].y, 20, color);
-				}
-			}
-		}	
 	};
 
 	MainCtrl.getDeleteCount = function(){
