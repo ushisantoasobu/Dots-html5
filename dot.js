@@ -16,29 +16,36 @@ this.dots = this.dots || {};
 	var p = Dot.prototype;
 
 
-	/**  */
+	/** x座標 */
 	p.x = 0;
 
-	/**  */
+	/** y座標 */
 	p.y = 0;
 
-	/**  */
+	/** 半径 */
 	p._radius = 0;
 
-	/**  */
+	/** 色 */
 	p.color = 0;
 
 	/** 選択状態かどうか */
 	p.selected;
 
-	/**  */
+	/** 位置インデックス */
 	p.positionIndex;
 
+	/** 現在アニメーション中かどうか */
 	p._isAnimation;
 	
 
-
-	
+	/**
+	 * 初期処理
+	 * 
+	 * @param x
+	 * @param y
+	 * @param radiu
+	 * @param color
+	 */
 	p.initialize = function(x ,y, radius, color){
 		this.x = x;
 		this.y = y;
@@ -46,12 +53,17 @@ this.dots = this.dots || {};
 		this.color = color;
 
 		this.selected = false;
-
 		this.positionIndex = 0;
-
 		this._animation = false;
 	};
 
+	/**
+	 * 更新処理　TODO:drawのほうがよい？？
+	 * 
+	 * @param ctx
+	 * @param addX 親の位置座標反映用
+	 * @param addY 親の位置座標反映用
+	 */
 	p.update = function(ctx, addX, addY){
 		ctx.beginPath();
 		ctx.arc(this.x + addX, this.y + addY, this._radius, 0, Math.PI*2, false);
@@ -59,13 +71,23 @@ this.dots = this.dots || {};
 		ctx.fill();
 	};
 
-
-	p.startAnimation = function(fromX, fromY, toX, toY, fps, ms, callback){
+	/**
+	 * 移動アニメーション開始
+	 * 
+	 * @param fromX
+	 * @param fromY
+	 * @param toX
+	 * @param toY
+	 * @param fps
+	 * @param duration
+	 * @param callback
+	 */
+	p.startAnimation = function(fromX, fromY, toX, toY, fps, duration, callback){
 		
 		var that = this;
 
 		this._isAnimation = true;
-		var totalCount = fps * ms / 1000;
+		var totalCount = fps * duration / 1000;
 		var count = 0;
 		var interval = setInterval(function(){
 			
@@ -84,7 +106,7 @@ this.dots = this.dots || {};
 				}
 			}
 		}, 1000 / fps);
-	}
+	};
 
 
 	dots.Dot = Dot;

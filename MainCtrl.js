@@ -51,18 +51,20 @@ this.dots = this.dots || {};
 	//現在対象にインデックスの配列
 	MainCtrl.currentTargetIndexArray = [];
 
+	/** 現在選択中のdotの配列 */
 	MainCtrl.selectedDotsArray = [];
 
+	/** プレイ可能かどうか */
+	MainCtrl.playFlg = true;
+
+	/** タッチ開始座標 */
+	MainCtrl.touchStartPoint = {x:0, y:0};
+	
 	/** 現在選択中の色 */
 	MainCtrl.currentTargetColor = -1;
 
-	//
-	MainCtrl.playFlg = true;
-
-	/**  */
-	MainCtrl.touchStartPoint = {x:0, y:0};
-
- 	MainCtrl.scoreEvent;
+	/** スコア更新イベント */
+ 	MainCtrl.scoreUpdateEvent;
 
 
 	//-----------------------------------
@@ -105,8 +107,8 @@ this.dots = this.dots || {};
 		}
 
 		//set up events
-		MainCtrl.scoreEvent = document.createEvent('Events');
-		MainCtrl.scoreEvent.initEvent('mainctrl_score_event', true, true);
+		MainCtrl.scoreUpdateEvent = document.createEvent('Events');
+		MainCtrl.scoreUpdateEvent.initEvent('dot_score_update_event', true, true);
 
 		setInterval(function(){
 			MainCtrl.stage.update();
@@ -141,41 +143,6 @@ this.dots = this.dots || {};
 		}
 
 		MainCtrl.setPlayEnable();
-	};
-
-	/**
-	 * ドットをつめる
-	 */
-	MainCtrl.closeDots = function(){
-		var checkCount = 0;
-		var nullCount = 0;
-		for (var i = 0; i < MainCtrl.COLUMN_COUNT; i++) {
-			for (var j = 0; j < MainCtrl.ROW_COUNT; j++) {
-				checkCount = MainCtrl.ROW_COUNT - j - 1; //-1は自分自身
-				nullCount = 0;
-				for (var k = 0; k < checkCount; k++) {
-					if (true) {
-						nullCount++;
-					}
-				}
-				MainCtrl.fallDot(MainCtrl.dotsArray[i * MainCtrl.ROW_COUNT + j], nullCount);
-				//TODO:配列も入れ替える
-			}
-		}
-	};
-
-	/**
-	 * ドットを削除する
-	 * 
-	 * @param indexArray
-	 */
-	MainCtrl.removeDots = function(indexArray){
-		for (var i = indexArray.length - 1; i >= 0; i--) {
-
-			MainCtrl.dotsArray[indexArray[i]] = null;	
-		}
-
-		MainCtrl.closeDots();
 	};
 
 	/**
@@ -525,7 +492,7 @@ this.dots = this.dots || {};
 			MainCtrl._deleteCount++;
 			MainCtrl._deleteDotsCount += MainCtrl.selectedDotsArray.length;
 
-			document.dispatchEvent(MainCtrl.scoreEvent);
+			document.dispatchEvent(MainCtrl.scoreUpdateEvent);
 			
 			MainCtrl.resetData();
 
