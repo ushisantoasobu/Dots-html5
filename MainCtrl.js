@@ -145,6 +145,7 @@ this.dots = this.dots || {};
 				MainCtrl.touchStartPoint.y = dot.y;
 				MainCtrl.currentTargetColor = dot.color;
 				dot.selected = true;
+				dot.rippleAnimation();
 				selectedDotsArray.push(dot);
 				break;
 			}
@@ -188,6 +189,7 @@ this.dots = this.dots || {};
 					MainCtrl.touchStartPoint.y = dot.y;
 					MainCtrl.currentTargetColor = dot.color;
 					dot.selected = true;
+					dot.rippleAnimation();
 					MainCtrl.selectedDotsArray.push(dot);	
 					break;
 
@@ -207,6 +209,7 @@ this.dots = this.dots || {};
 								MainCtrl.touchStartPoint.x = dot.x;
 								MainCtrl.touchStartPoint.y = dot.y;
 								dot.selected = true;
+								dot.rippleAnimation();
 								MainCtrl.selectedDotsArray.push(dot);
 
 								//線の描画
@@ -226,6 +229,7 @@ this.dots = this.dots || {};
 								MainCtrl.touchStartPoint.x = dot.x;
 								MainCtrl.touchStartPoint.y = dot.y;
 								dot.selected = true;
+								dot.rippleAnimation();
 								MainCtrl.selectedDotsArray.push(dot);
 
 								//線の描画
@@ -245,6 +249,7 @@ this.dots = this.dots || {};
 								MainCtrl.touchStartPoint.x = dot.x;
 								MainCtrl.touchStartPoint.y = dot.y;
 								dot.selected = true;
+								dot.rippleAnimation();
 								MainCtrl.selectedDotsArray.push(dot);
 
 								//線の描画
@@ -264,6 +269,7 @@ this.dots = this.dots || {};
 								MainCtrl.touchStartPoint.x = dot.x;
 								MainCtrl.touchStartPoint.y = dot.y;
 								dot.selected = true;
+								dot.rippleAnimation();
 								MainCtrl.selectedDotsArray.push(dot);
 
 								//線の描画
@@ -355,7 +361,7 @@ this.dots = this.dots || {};
 									dot.x, 
 									dot.y + (dot.positionIndex - previousIndex) / MainCtrl.COLUMN_COUNT * MainCtrl.DOTS_DISTANCE,
 									MainCtrl.FPS,
-									500,
+									200 * ((dot.positionIndex - previousIndex) / MainCtrl.COLUMN_COUNT),
 									function(){console.log("test");});
 			}
 
@@ -390,7 +396,7 @@ this.dots = this.dots || {};
 									dot.x, 
 									dot.y,
 									MainCtrl.FPS,
-									500,
+									200 * MainCtrl._getDeletedCountForColumn(dot.positionIndex, removedIndexArray),
 									function(){console.log("test");});
 			}
 

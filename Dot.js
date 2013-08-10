@@ -69,6 +69,8 @@ this.dots = this.dots || {};
 		ctx.arc(this.x + addX, this.y + addY, this._radius, 0, Math.PI*2, false);
 		ctx.fillStyle = Dot.COLORLIST[this.color];
 		ctx.fill();
+
+		this._drawRipple(ctx, addX, addY);
 	};
 
 	/**
@@ -83,8 +85,17 @@ this.dots = this.dots || {};
 	 * @param callback
 	 */
 	p.startAnimation = function(fromX, fromY, toX, toY, fps, duration, callback){
-		
+
 		var that = this;
+
+		if(duration === 0){
+			that.x = toX;
+			that.y = toY;
+			if(callback){
+				callback();
+			}
+			return;
+		}
 
 		this._isAnimation = true;
 		var totalCount = fps * duration / 1000;
@@ -107,6 +118,37 @@ this.dots = this.dots || {};
 			}
 		}, 1000 / fps);
 	};
+
+	/**
+	 * 波紋アニメーションをする	
+	 * 
+	 * @param 
+	 * @return 
+	 */
+	p.rippleAnimation = function(){
+		this._isRipple = true;
+	};
+
+
+	p._rippleCount = 0;
+
+	p._isRipple = false;
+
+	p._drawRipple = function(ctx, addX, addY){
+		if(this._isRipple === true){
+			if(this._rippleCount === 30){
+				this._isRipple = false;
+			} else {
+				ctx.beginPath();
+				ctx.arc(this.x + addX, this.y + addY, this._radius + this._radius * 2 / this._rippleCount, 0, Math.PI*2, false);
+				ctx.strokeStyle = Dot.COLORLIST[this.color];
+				ctx.lineWidth = 2;
+				ctx.stroke();
+			}
+			this._rippleCount++;
+		}
+	}
+	
 
 
 	dots.Dot = Dot;
