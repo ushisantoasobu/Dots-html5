@@ -143,7 +143,7 @@ this.dots = this.dots || {};
 
 				MainCtrl.touchStartPoint.x = dot.x;
 				MainCtrl.touchStartPoint.y = dot.y;
-				MainCtrl.currentTargetColor = dot.color;
+				MainCtrl.currentTargetColor = dot.colorId;
 				dot.selected = true;
 				dot.rippleAnimation();
 				selectedDotsArray.push(dot);
@@ -187,7 +187,7 @@ this.dots = this.dots || {};
 
 					MainCtrl.touchStartPoint.x = dot.x;
 					MainCtrl.touchStartPoint.y = dot.y;
-					MainCtrl.currentTargetColor = dot.color;
+					MainCtrl.currentTargetColor = dot.colorId;
 					dot.selected = true;
 					dot.rippleAnimation();
 					MainCtrl.selectedDotsArray.push(dot);	
@@ -196,7 +196,7 @@ this.dots = this.dots || {};
 				} else {
 					//すでにいずれかのドットが選択状態にあるとき
 
-					if (MainCtrl.currentTargetColor === dot.color){
+					if (MainCtrl.currentTargetColor === dot.colorId){
 
 						//まだ選択されたものでないとき
 						if (dot.selected === false) {

@@ -3,8 +3,8 @@ this.dots = this.dots || {};
 
 (function(){
 
-	var Dot = function(x ,y, radius, color){
-		this.initialize(x ,y, radius, color);
+	var Dot = function(x ,y, radius, colorId){
+		this.initialize(x ,y, radius, colorId);
 	};
 
 	Dot.COLORLIST = [	'rgb(128, 100, 162)', 
@@ -13,20 +13,10 @@ this.dots = this.dots || {};
 						'rgb(200, 200, 111)', 
 						'rgb(28, 111, 192)', ];*/
 
-	var p = Dot.prototype;
+	var p = Dot.prototype = new dots.Circle();
 
-
-	/** x座標 */
-	p.x = 0;
-
-	/** y座標 */
-	p.y = 0;
-
-	/** 半径 */
-	p._radius = 0;
-
-	/** 色 */
-	p.color = 0;
+	/** 色ID */
+	p.colorId = 0;
 
 	/** 選択状態かどうか */
 	p.selected;
@@ -36,6 +26,12 @@ this.dots = this.dots || {};
 
 	/** 現在アニメーション中かどうか */
 	p._isAnimation;
+
+	/** explanation */
+	p.Circle_initialize = p.initialize;
+
+	/** explanation */
+	p.Circle_update = p.update;
 	
 
 	/**
@@ -46,12 +42,13 @@ this.dots = this.dots || {};
 	 * @param radiu
 	 * @param color
 	 */
-	p.initialize = function(x ,y, radius, color){
+	p.initialize = function(x ,y, radius, colorId){
+		// p.Circle_initialize(x ,y, radius, null);//TODO:なぜうまくいかない？？
 		this.x = x;
 		this.y = y;
-		this._radius = radius;
-		this.color = color;
+		this.radius = radius;
 
+		this.colorId = colorId;
 		this.selected = false;
 		this.positionIndex = 0;
 		this._animation = false;
@@ -66,8 +63,8 @@ this.dots = this.dots || {};
 	 */
 	p.update = function(ctx, addX, addY){
 		ctx.beginPath();
-		ctx.arc(this.x + addX, this.y + addY, this._radius, 0, Math.PI*2, false);
-		ctx.fillStyle = Dot.COLORLIST[this.color];
+		ctx.arc(this.x + addX, this.y + addY, this.radius, 0, Math.PI*2, false);
+		ctx.fillStyle = Dot.COLORLIST[this.colorId];
 		ctx.fill();
 
 		this._drawRipple(ctx, addX, addY);
@@ -140,8 +137,8 @@ this.dots = this.dots || {};
 				this._isRipple = false;
 			} else {
 				ctx.beginPath();
-				ctx.arc(this.x + addX, this.y + addY, this._radius + this._radius * 2 / this._rippleCount, 0, Math.PI*2, false);
-				ctx.strokeStyle = Dot.COLORLIST[this.color];
+				ctx.arc(this.x + addX, this.y + addY, this.radius + this.radius * 2 / this._rippleCount, 0, Math.PI*2, false);
+				ctx.strokeStyle = Dot.COLORLIST[this.colorId];
 				ctx.lineWidth = 2;
 				ctx.stroke();
 			}
