@@ -500,6 +500,36 @@ this.dots = this.dots || {};
 	};
 
 	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
+	self._isGameOver = function(){
+		for (var i = 0; i < self.ROW_COUNT - 1; i++) { //一番下の行はやる必要ない
+			for (var j = 0; j < self.COLUMN_COUNT; j++) {
+				var index = j + i * self.COLUMN_COUNT;
+
+				var dot = self.dotContainer.getChildAt(index);
+				var rightDot = self.dotContainer.getChildAt(index + 1);
+				var bottomDot = self.dotContainer.getChildAt(index + self.COLUMN_COUNT);
+
+				if (j === self.COLUMN_COUNT - 1) {
+					if (dot.colorId === bottomDot.colorId) {
+						return false;
+					}
+				} else {
+					if (dot.colorId === rightDot.colorId ||
+						dot.colorId === bottomDot.colorId) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	};
+
+	/**
 	 * プレイ可能状態にする
 	 */
 	self._setPlayEnable = function(){
