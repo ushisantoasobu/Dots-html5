@@ -130,8 +130,8 @@ this.dots = this.dots || {};
 
 		if(!MainCtrl.playFlg){return;}
 
-		MainCtrl.touchStartPoint.x = e.changedTouches[0].screenX - MainCtrl.stage.getCanvas().offsetLeft;
-		MainCtrl.touchStartPoint.y = e.changedTouches[0].screenY - MainCtrl.stage.getCanvas().offsetTop;
+		MainCtrl.touchStartPoint.x = e.changedTouches[0].pageX - MainCtrl.stage.getCanvas().offsetLeft;
+		MainCtrl.touchStartPoint.y = e.changedTouches[0].pageY - MainCtrl.stage.getCanvas().offsetTop;
 
 		var len = MainCtrl.dotContainer.getNumChildren();
 		for (var i = len - 1; i >= 0; i--) {
@@ -146,7 +146,7 @@ this.dots = this.dots || {};
 				MainCtrl.currentTargetColor = dot.colorId;
 				dot.selected = true;
 				dot.rippleAnimation();
-				selectedDotsArray.push(dot);
+				MainCtrl.selectedDotsArray.push(dot);
 				break;
 			}
 		}
@@ -171,8 +171,8 @@ this.dots = this.dots || {};
 
 		var len = MainCtrl.dotContainer.getNumChildren();
 		for (var i = len - 1; i >= 0; i--) {
-			var x = parseInt(e.changedTouches[0].screenX - MainCtrl.stage.getCanvas().offsetLeft);	
-			var y = parseInt(e.changedTouches[0].screenY - MainCtrl.stage.getCanvas().offsetTop);
+			var x = parseInt(e.changedTouches[0].pageX - MainCtrl.stage.getCanvas().offsetLeft);	
+			var y = parseInt(e.changedTouches[0].pageY - MainCtrl.stage.getCanvas().offsetTop);
 			var dot = MainCtrl.dotContainer.getChildAt(i);
 
 			//いずれかのドットに触れたとき
@@ -295,8 +295,8 @@ this.dots = this.dots || {};
 		var line = new dots.Line(
 									MainCtrl.touchStartPoint.x,
 							 		MainCtrl.touchStartPoint.y,
-							 		e.changedTouches[0].screenX - MainCtrl.stage.getCanvas().offsetLeft,
-							 		e.changedTouches[0].screenY - MainCtrl.stage.getCanvas().offsetTop
+							 		e.changedTouches[0].pageX - MainCtrl.stage.getCanvas().offsetLeft,
+							 		e.changedTouches[0].pageY - MainCtrl.stage.getCanvas().offsetTop
 							 	);
 
 		MainCtrl.lineContainer.addChild(line);
