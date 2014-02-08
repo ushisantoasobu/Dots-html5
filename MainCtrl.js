@@ -89,24 +89,13 @@ this.dots = this.dots || {};
 		canvas.addEventListener('touchend', MainCtrl._canvasTouchEndHandler, false);
 
 		//setup dots
-		var color = 0;
-		for (var i = 0; i < MainCtrl.ROW_COUNT; i++) {
-			for (var j = 0; j < MainCtrl.COLUMN_COUNT; j++) {
-
-				color = parseInt(Math.random() * dots.Dot.COLORLIST.length);
-				var dot = new dots.Dot(	MainCtrl.DOTS_DISTANCE * (j + 1), 
-										MainCtrl.DOTS_DISTANCE * (i + 1), 
-										20, 
-										color);
-				dot.positionIndex = j + MainCtrl.ROW_COUNT * i;
-				MainCtrl.dotContainer.addChild(dot);
-			}
-		}
+		MainCtrl._setupInitialDots(MainCtrl.dotContainer);
 
 		//set up events
 		MainCtrl.scoreUpdateEvent = document.createEvent('Events');
 		MainCtrl.scoreUpdateEvent.initEvent('dot_score_update_event', true, true);
 
+		//tick
 		setInterval(function(){
 			MainCtrl.stage.update();
 		}, 1000 / 60);
@@ -119,7 +108,32 @@ this.dots = this.dots || {};
 		MainCtrl.currentTargetColor = -1;
 		MainCtrl.selectedDotsArray = [];
 		MainCtrl.touchStartPoint = {x:0, y:0};
-	}
+	};
+
+	/**
+	 * 任意のコンテイナーに初期ドットをセットする
+	 * 
+	 * @param container
+	 */
+	MainCtrl._setupInitialDots = function(container){
+		var color = 0,
+			i,
+			j,
+			dot;
+
+		for (i = 0; i < MainCtrl.ROW_COUNT; i++) {
+			for (j = 0; j < MainCtrl.COLUMN_COUNT; j++) {
+
+				color = parseInt(Math.random() * dots.Dot.COLORLIST.length, 10);
+				dot = new dots.Dot(	MainCtrl.DOTS_DISTANCE * (j + 1), 
+										MainCtrl.DOTS_DISTANCE * (i + 1), 
+										20, 
+										color);
+				dot.positionIndex = j + MainCtrl.ROW_COUNT * i;
+				container.addChild(dot);
+			}
+		}
+	};
 
 	/**
 	 * キャンバスタッチ開始イベント
@@ -128,7 +142,9 @@ this.dots = this.dots || {};
 	 */
 	MainCtrl._canvasTouchStartHandler = function(e){
 
-		if(!MainCtrl.playFlg){return;}
+		if(!MainCtrl.playFlg){
+			return;
+		}
 
 		MainCtrl.touchStartPoint.x = e.changedTouches[0].pageX - MainCtrl.stage.getCanvas().offsetLeft;
 		MainCtrl.touchStartPoint.y = e.changedTouches[0].pageY - MainCtrl.stage.getCanvas().offsetTop;
