@@ -513,6 +513,11 @@ this.dots = this.dots || {};
 		self.playFlg = false;
 	};
 
+	//test
+	self.testTestem = function(){
+ 		return true;
+ 	}
+
 
 	//-------------------------------------
 	// public
