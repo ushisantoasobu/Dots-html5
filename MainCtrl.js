@@ -353,6 +353,10 @@ this.dots = this.dots || {};
 			
 			self._resetData();
 
+			if (self._isGameOver()) {
+				alert("gameover"); //test
+			}	
+
 		} else {
 			//クリアするdotがないとき
 
@@ -506,15 +510,28 @@ this.dots = this.dots || {};
 	 * @return explanation
 	 */
 	self._isGameOver = function(){
-		for (var i = 0; i < self.ROW_COUNT - 1; i++) { //一番下の行はやる必要ない
+
+		var tempArr = [];
+		for (var i = 0; i < self.dotContainer.getNumChildren(); i++) {
+			var dot = self.dotContainer.getChildAt(i);
+			tempArr[dot.positionIndex] = dot;
+		}
+
+		for (var i = 0; i < self.ROW_COUNT; i++) {
 			for (var j = 0; j < self.COLUMN_COUNT; j++) {
 				var index = j + i * self.COLUMN_COUNT;
 
-				var dot = self.dotContainer.getChildAt(index);
-				var rightDot = self.dotContainer.getChildAt(index + 1);
-				var bottomDot = self.dotContainer.getChildAt(index + self.COLUMN_COUNT);
+				var dot = tempArr[index];
+				var rightDot = tempArr[index + 1];
+				var bottomDot = tempArr[index + self.COLUMN_COUNT];
 
-				if (j === self.COLUMN_COUNT - 1) {
+				if (i === self.ROW_COUNT - 1 && j === self.COLUMN_COUNT - 1) {
+					//
+				} else if (i === self.ROW_COUNT - 1) {
+					if (dot.colorId === rightDot.colorId){
+						return false;
+					}
+				} else if (j === self.COLUMN_COUNT - 1) {
 					if (dot.colorId === bottomDot.colorId) {
 						return false;
 					}
