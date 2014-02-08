@@ -142,6 +142,8 @@ this.dots = this.dots || {};
 	 */
 	self._canvasTouchStartHandler = function(e){
 
+		var len, i, dot;
+
 		if(!self.playFlg){
 			return;
 		}
@@ -149,20 +151,12 @@ this.dots = this.dots || {};
 		self.touchStartPoint.x = e.changedTouches[0].pageX - self.stage.getCanvas().offsetLeft;
 		self.touchStartPoint.y = e.changedTouches[0].pageY - self.stage.getCanvas().offsetTop;
 
-		var len = self.dotContainer.getNumChildren();
-		for (var i = len - 1; i >= 0; i--) {
-			var dot = self.dotContainer.getChildAt(i);
-			if (self.touchStartPoint.x > dot.x - self.TOUCH_RANGE && 
-				self.touchStartPoint.x < dot.x + self.TOUCH_RANGE && 
-				self.touchStartPoint.y > dot.y - self.TOUCH_RANGE &&
-				self.touchStartPoint.y < dot.y + self.TOUCH_RANGE ) {
+		len = self.dotContainer.getNumChildren();
+		for (i = len - 1; i >= 0; i--) {
+			dot = self.dotContainer.getChildAt(i);
 
-				self.touchStartPoint.x = dot.x;
-				self.touchStartPoint.y = dot.y;
-				self.currentTargetColor = dot.colorId;
-				dot.selected = true;
-				dot.rippleAnimation();
-				self.selectedDotsArray.push(dot);
+			if (self._checkTouchInTargetDot(self.touchStartPoint, dot)) {
+				self._didDotInFirstTarget(dot);
 				break;
 			}
 		}
@@ -177,7 +171,9 @@ this.dots = this.dots || {};
 	 */
 	self._canvasTouchMoveHandler = function(e){
 
-		if(!self.playFlg){return;}
+		if(!self.playFlg){
+			return;
+		}
 
 		//線の描画は一旦削除
 		var lineCount = self.lineContainer.getNumChildren();
@@ -187,26 +183,19 @@ this.dots = this.dots || {};
 
 		var len = self.dotContainer.getNumChildren();
 		for (var i = len - 1; i >= 0; i--) {
-			var x = parseInt(e.changedTouches[0].pageX - self.stage.getCanvas().offsetLeft);	
-			var y = parseInt(e.changedTouches[0].pageY - self.stage.getCanvas().offsetTop);
+			var point = {};
+			point.x = parseInt(e.changedTouches[0].pageX - self.stage.getCanvas().offsetLeft);	
+			point.y = parseInt(e.changedTouches[0].pageY - self.stage.getCanvas().offsetTop);
 			var dot = self.dotContainer.getChildAt(i);
 
 			//いずれかのドットに触れたとき
-			if (x > dot.x - self.TOUCH_RANGE && 
-				x < dot.x + self.TOUCH_RANGE && 
-				y > dot.y - self.TOUCH_RANGE &&
-				y < dot.y + self.TOUCH_RANGE ) {
+			if (self._checkTouchInTargetDot(point, dot)) {
 
 				var selectedDotsCount = self.selectedDotsArray.length;
 				if (selectedDotsCount === 0) {
 					//まだいずれのドットも選択状態にないとき
 
-					self.touchStartPoint.x = dot.x;
-					self.touchStartPoint.y = dot.y;
-					self.currentTargetColor = dot.colorId;
-					dot.selected = true;
-					dot.rippleAnimation();
-					self.selectedDotsArray.push(dot);	
+					self._didDotInFirstTarget(dot);
 					break;
 
 				} else {
@@ -221,84 +210,24 @@ this.dots = this.dots || {};
 							var lastIndex = lastDot.positionIndex;
 
 							if(dot.positionIndex === lastIndex - 1 && self._checkExistDotLeft(lastIndex)) {
-
-								self.touchStartPoint.x = dot.x;
-								self.touchStartPoint.y = dot.y;
-								dot.selected = true;
-								dot.rippleAnimation();
-								self.selectedDotsArray.push(dot);
-
+								self._didDotInTarget(dot);
 								//線の描画
-								var lineCount = self.lineContainer.getNumChildren();
-								var line = self.lineContainer.getChildAt(lineCount - 1);
-								var line = new dots.Line(
-									lastDot.x,
-							 		lastDot.y,
-							 		dot.x,
-							 		dot.y
-							 	);
-							 	self.lineContainer.addChild(line);
-
+								self.drawLineFromDotToDot(lastDot, dot);
 								break;
 							} else if (dot.positionIndex === lastIndex + 1 && self._checkExistDotRight(lastIndex)) {
-
-								self.touchStartPoint.x = dot.x;
-								self.touchStartPoint.y = dot.y;
-								dot.selected = true;
-								dot.rippleAnimation();
-								self.selectedDotsArray.push(dot);
-
+								self._didDotInTarget(dot);
 								//線の描画
-								var lineCount = self.lineContainer.getNumChildren();
-								var line = self.lineContainer.getChildAt(lineCount - 1);
-								var line = new dots.Line(
-									lastDot.x,
-							 		lastDot.y,
-							 		dot.x,
-							 		dot.y
-							 	);
-							 	self.lineContainer.addChild(line);
-
+								self.drawLineFromDotToDot(lastDot, dot);
 								break;
 							} else if (dot.positionIndex === lastIndex - 4 && self._checkExistDotTop(lastIndex)) {
-
-								self.touchStartPoint.x = dot.x;
-								self.touchStartPoint.y = dot.y;
-								dot.selected = true;
-								dot.rippleAnimation();
-								self.selectedDotsArray.push(dot);
-
+								self._didDotInTarget(dot);
 								//線の描画
-								var lineCount = self.lineContainer.getNumChildren();
-								var line = self.lineContainer.getChildAt(lineCount - 1);
-								var line = new dots.Line(
-									lastDot.x,
-							 		lastDot.y,
-							 		dot.x,
-							 		dot.y
-							 	);
-							 	self.lineContainer.addChild(line);
-
+								self.drawLineFromDotToDot(lastDot, dot);
 								break;
 							} else if (dot.positionIndex === lastIndex + 4 && self._checkExistDotBottom(lastIndex)) {
-
-								self.touchStartPoint.x = dot.x;
-								self.touchStartPoint.y = dot.y;
-								dot.selected = true;
-								dot.rippleAnimation();
-								self.selectedDotsArray.push(dot);
-
+								self._didDotInTarget(dot);
 								//線の描画
-								var lineCount = self.lineContainer.getNumChildren();
-								var line = self.lineContainer.getChildAt(lineCount - 1);
-								var line = new dots.Line(
-									lastDot.x,
-							 		lastDot.y,
-							 		dot.x,
-							 		dot.y
-							 	);
-							 	self.lineContainer.addChild(line);
-
+								self.drawLineFromDotToDot(lastDot, dot);
 								break;		
 							}
 						}
@@ -335,12 +264,12 @@ this.dots = this.dots || {};
 	 */
 	self._canvasTouchEndHandler = function(e){
 
-		if(!self.playFlg){return;}
+		if(!self.playFlg){
+			return;
+		}
 
 
 		self.lineContainer.removeAllChildren();
-
-		event.preventDefault();
 
 		if(self.selectedDotsArray.length > 1){
 
@@ -429,6 +358,62 @@ this.dots = this.dots || {};
 
 			self._resetData();
 		}
+
+		event.preventDefault();
+	};
+
+		/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
+	self._checkTouchInTargetDot = function(touchPoint, dot){
+		return (touchPoint.x > dot.x - self.TOUCH_RANGE && 
+				touchPoint.x < dot.x + self.TOUCH_RANGE && 
+				touchPoint.y > dot.y - self.TOUCH_RANGE &&
+				touchPoint.y < dot.y + self.TOUCH_RANGE );
+	};
+
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
+	self._didDotInFirstTarget = function(dot){
+		self._didDotInTarget(dot);
+		self.currentTargetColor = dot.colorId;
+	};
+
+	/**
+	 * explanation
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
+	self._didDotInTarget = function(dot){
+		self.touchStartPoint.x = dot.x;
+		self.touchStartPoint.y = dot.y;
+		dot.selected = true;
+		dot.rippleAnimation();
+		self.selectedDotsArray.push(dot);
+	};
+
+	/**
+	 * あるドットからドットへ線を引く
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
+	self.drawLineFromDotToDot = function(fromDot, toDot){
+		var line = new dots.Line(
+			fromDot.x,
+			fromDot.y,
+			toDot.x,
+			toDot.y
+		);
+		self.lineContainer.addChild(line);
 	};
 
 	/**
