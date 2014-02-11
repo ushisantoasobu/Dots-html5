@@ -14,10 +14,10 @@ this.dots = this.dots || {};
 	self.FPS = 60;
 
 	/** row count */
-	self.ROW_COUNT = 6;
+	self.ROW_COUNT = 4;
 
 	/** colomun count */
-	self.COLUMN_COUNT = 6;
+	self.COLUMN_COUNT = 4;
 
 	/** explanation */
 	self.DOTS_DISTANCE = 50;

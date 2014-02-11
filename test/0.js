@@ -78,4 +78,48 @@ describe('0', function() {
 	  	expect(m._checkTouchInTargetDot(point, dot)).to.eql(false);
 	});
 
+	//
+
+	it('次のdotになれる', function(){
+		var dot = new dots.Dot(0, 0, 0, 0);
+		dot.positionIndex = 0;
+		var lastIndex = 1;
+	  	expect(m.isAbleToBeNextDot(dot, lastIndex)).to.eql(true);
+	});
+
+	it('次のdotになれる', function(){
+		var dot = new dots.Dot(0, 0, 0, 0);
+		dot.positionIndex = 2;
+		var lastIndex = 6;
+	  	expect(m.isAbleToBeNextDot(dot, lastIndex)).to.eql(true);
+	});
+
+	it('次のdotになれる', function(){
+		var dot = new dots.Dot(0, 0, 0, 0);
+		dot.positionIndex = 11;
+		var lastIndex = 7;
+	  	expect(m.isAbleToBeNextDot(dot, lastIndex)).to.eql(true);
+	});
+
+	it('次のdotになれる', function(){
+		var dot = new dots.Dot(0, 0, 0, 0);
+		dot.positionIndex = 7;
+		var lastIndex = 6;
+	  	expect(m.isAbleToBeNextDot(dot, lastIndex)).to.eql(true);
+	});
+
+	it('次のdotになれない', function(){
+		var dot = new dots.Dot(0, 0, 0, 0);
+		dot.positionIndex = 3;
+		var lastIndex = 4;
+	  	expect(m.isAbleToBeNextDot(dot, lastIndex)).to.eql(false);
+	});
+
+	it('次のdotになれない', function(){
+		var dot = new dots.Dot(0, 0, 0, 0);
+		dot.positionIndex = 0;
+		var lastIndex = 2;
+	  	expect(m.isAbleToBeNextDot(dot, lastIndex)).to.eql(false);
+	});
+
 });
