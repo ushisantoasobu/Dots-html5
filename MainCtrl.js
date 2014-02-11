@@ -25,6 +25,9 @@ this.dots = this.dots || {};
 	/** touch range(radius) */
 	self.TOUCH_RANGE = 25;
 
+	/** radius of dot */
+	self.DOT_RADIUS = 20;
+
 
 	//-----------------------------------
 	// variables
@@ -127,7 +130,7 @@ this.dots = this.dots || {};
 				color = parseInt(Math.random() * dots.Dot.COLORLIST.length, 10);
 				dot = new dots.Dot(	self.DOTS_DISTANCE * (j + 1), 
 										self.DOTS_DISTANCE * (i + 1), 
-										20, 
+										self.DOT_RADIUS, 
 										color);
 				dot.positionIndex = j + self.ROW_COUNT * i;
 				container.addChild(dot);
@@ -331,7 +334,7 @@ this.dots = this.dots || {};
 				color = parseInt(Math.random() * dots.Dot.COLORLIST.length);
 				var dot = new dots.Dot(	self.DOTS_DISTANCE * (newIndexArray[i] % self.COLUMN_COUNT + 1), 
 										self.DOTS_DISTANCE * (Math.floor(newIndexArray[i] / self.COLUMN_COUNT) + 1), 
-										20, 
+										self.DOT_RADIUS, 
 										color);
 				dot.positionIndex = newIndexArray[i];
 				// columunIndex = dot.positionIndex % self.COLUMN_COUNT;
@@ -366,7 +369,7 @@ this.dots = this.dots || {};
 		event.preventDefault();
 	};
 
-		/**
+	/**
 	 * explanation
 	 * 
 	 * @param explanation
@@ -559,11 +562,6 @@ this.dots = this.dots || {};
 	self._setPlayDisable = function(){
 		self.playFlg = false;
 	};
-
-	//test
-	self.testTestem = function(){
- 		return true;
- 	}
 
 
 	//-------------------------------------
