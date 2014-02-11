@@ -14,10 +14,10 @@ this.dots = this.dots || {};
 	self.FPS = 60;
 
 	/** row count */
-	self.ROW_COUNT = 4;
+	self.ROW_COUNT = 6;
 
 	/** colomun count */
-	self.COLUMN_COUNT = 4;
+	self.COLUMN_COUNT = 6;
 
 	/** explanation */
 	self.DOTS_DISTANCE = 50;
@@ -212,26 +212,10 @@ this.dots = this.dots || {};
 							var lastDot = self.selectedDotsArray[selectedDotsCount - 1];
 							var lastIndex = lastDot.positionIndex;
 
-							if(dot.positionIndex === lastIndex - 1 && self._checkExistDotLeft(lastIndex)) {
+							if(self.isAbleToBeNextDot(dot, lastIndex) === true){
 								self._didDotInTarget(dot);
-								//線の描画
 								self.drawLineFromDotToDot(lastDot, dot);
 								break;
-							} else if (dot.positionIndex === lastIndex + 1 && self._checkExistDotRight(lastIndex)) {
-								self._didDotInTarget(dot);
-								//線の描画
-								self.drawLineFromDotToDot(lastDot, dot);
-								break;
-							} else if (dot.positionIndex === lastIndex - 4 && self._checkExistDotTop(lastIndex)) {
-								self._didDotInTarget(dot);
-								//線の描画
-								self.drawLineFromDotToDot(lastDot, dot);
-								break;
-							} else if (dot.positionIndex === lastIndex + 4 && self._checkExistDotBottom(lastIndex)) {
-								self._didDotInTarget(dot);
-								//線の描画
-								self.drawLineFromDotToDot(lastDot, dot);
-								break;		
 							}
 						}
 					}
@@ -258,7 +242,6 @@ this.dots = this.dots || {};
 
 		event.preventDefault();
 	};
-
 
 	/**
 	 * キャンバスタッチ終了イベント
@@ -431,7 +414,7 @@ this.dots = this.dots || {};
 	 */
 	self._checkExistDotLeft = function(index){
 		var flg = true;
-		if (index % 4 === 0) {
+		if (index % self.COLUMN_COUNT === 0) {
 			flg = false;
 		}
 		return flg;
@@ -445,7 +428,7 @@ this.dots = this.dots || {};
 	 */
 	self._checkExistDotRight = function(index){
 		var flg = true;
-		if (index % 4 === 3) {
+		if (index % self.COLUMN_COUNT === self.COLUMN_COUNT - 1) {
 			flg = false;
 		}
 		return flg;
@@ -459,7 +442,7 @@ this.dots = this.dots || {};
 	 */
 	self._checkExistDotTop = function(index){
 		var flg = true;
-		if (index < 4) {
+		if (index < self.COLUMN_COUNT) {
 			flg = false;
 		}
 		return flg;
@@ -473,7 +456,7 @@ this.dots = this.dots || {};
 	 */
 	self._checkExistDotBottom = function(index){
 		var flg = true;
-		if (index > 4 * (4 - 1)) {
+		if (index > self.COLUMN_COUNT * (self.ROW_COUNT - 1)) {
 			flg = false;
 		}
 		return flg;
@@ -507,10 +490,30 @@ this.dots = this.dots || {};
 	};
 
 	/**
-	 * explanation
+	 * 対象のdotが次の選択dotになりうるか調べる
 	 * 
-	 * @param explanation
-	 * @return explanation
+	 * @param dot dot
+	 * @param lastIndex lastIndex
+	 * @return boolean
+	 */
+	self.isAbleToBeNextDot = function(dot, lastIndex){
+		if(dot.positionIndex === lastIndex - 1 && self._checkExistDotLeft(lastIndex)) {
+			return true;
+		} else if (dot.positionIndex === lastIndex + 1 && self._checkExistDotRight(lastIndex)) {
+			return true;
+		} else if (dot.positionIndex === lastIndex - self.COLUMN_COUNT && self._checkExistDotTop(lastIndex)) {
+			return true;
+		} else if (dot.positionIndex === lastIndex + self.COLUMN_COUNT && self._checkExistDotBottom(lastIndex)) {
+			return true;		
+		}
+
+		return false
+	};
+
+	/**
+	 * ゲームオーバ（１つもドットを消せない状態）かを返す
+	 * 
+	 * @return boolean
 	 */
 	self._isGameOver = function(){
 
