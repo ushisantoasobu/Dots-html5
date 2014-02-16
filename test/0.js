@@ -122,4 +122,49 @@ describe('0', function() {
 	  	expect(m.isAbleToBeNextDot(dot, lastIndex)).to.eql(false);
 	});
 
+	//
+
+	it('indexを9に更新する', function(){
+		var beforeIndex = 1;
+		var removedIndexArray = [5, 6, 7, 9, 10, 11, 12];
+		expect(m._updateIndex(beforeIndex, removedIndexArray)).to.eql(9);
+	});
+
+	it('indexが1のままであること', function(){
+		var beforeIndex = 1;
+		var removedIndexArray = [2, 3, 4, 6, 7, 8, 10, 11, 12];
+		expect(m._updateIndex(beforeIndex, removedIndexArray)).to.eql(1);
+	});
+
+	//
+
+	it('３つのドットが消えることになる', function(){
+		var beforeIndex = 0;
+		var removedIndexArray = [2, 3, 4, 6, 7, 8, 10, 11, 12];
+		expect(m._getDeletedCountForColumn(beforeIndex, removedIndexArray)).to.eql(3);
+	});
+
+	it('２つのドットが消えることになる', function(){
+		var beforeIndex = 11;
+		var removedIndexArray = [1, 2, 3, 7, 8, 13, 14];
+		expect(m._getDeletedCountForColumn(beforeIndex, removedIndexArray)).to.eql(2);
+	});
+
+	//
+
+	it('次に生成されるドットのインデックスの配列', function(){
+		m.dotContainer.removeAllChildren(); //一旦削除
+		var positionIndexList = [0, 1, 2, 3, 8, 9, 10, 11],
+			len = positionIndexList.length,
+			i,
+			dot;
+
+		for (i = 0; i < len; i++) {
+			var dot = new dots.Dot(0, 0, 0, 0);
+			dot.positionIndex = positionIndexList[i];
+			m.dotContainer.addChild(dot);
+		}
+		expect(m._createNextBornIndexArray()).to.eql([4 ,5 ,6 ,7 ,12 ,13 ,14 ,15]);
+	});
+
 });

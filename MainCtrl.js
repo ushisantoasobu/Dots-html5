@@ -28,6 +28,9 @@ this.dots = this.dots || {};
 	/** radius of dot */
 	self.DOT_RADIUS = 20;
 
+	/** explanation */
+	self.DOT_FALL_DURATION = 100;
+
 
 	//-----------------------------------
 	// variables
@@ -268,9 +271,6 @@ this.dots = this.dots || {};
 			var previousIndex;
 
 			var removedIndexArray = [];
-			// for (var i = 0; i < self.COLUMN_COUNT; i++) {
-			// 	removedIndexArray[i] = 0;
-			// }
 
 			//選択したものは削除する
 			for (var i = self.dotContainer.getNumChildren() - 1; i >= 0; i--) {
@@ -292,25 +292,11 @@ this.dots = this.dots || {};
 									dot.x, 
 									dot.y + (dot.positionIndex - previousIndex) / self.COLUMN_COUNT * self.DOTS_DISTANCE,
 									self.FPS,
-									200 * ((dot.positionIndex - previousIndex) / self.COLUMN_COUNT),
-									function(){console.log("test");});
+									self.DOT_FALL_DURATION * ((dot.positionIndex - previousIndex) / self.COLUMN_COUNT));
 			}
 
 			//新しく生成の必要なdotの位置インデックスを決定する
-			var existFlg;
-			var newIndexArray = [];
-			for (var i = 0; i < self.ROW_COUNT * self.COLUMN_COUNT; i++) {
-				existFlg = false;
-				for (var j = 0; j < self.dotContainer.getNumChildren(); j++) {
-					if(i === self.dotContainer.getChildAt(j).positionIndex){
-						existFlg = true;
-						break;
-					}
-				}
-				if(existFlg === false){
-					newIndexArray.push(i);
-				}
-			}
+			var newIndexArray = self._createNextBornIndexArray();
 
 			//新しくdotを生成する
 			for (var i = 0; i < newIndexArray.length; i++) {
@@ -327,8 +313,7 @@ this.dots = this.dots || {};
 									dot.x, 
 									dot.y,
 									self.FPS,
-									200 * self._getDeletedCountForColumn(dot.positionIndex, removedIndexArray),
-									function(){console.log("test");});
+									self.DOT_FALL_DURATION * self._getDeletedCountForColumn(dot.positionIndex, removedIndexArray));
 			}
 
 			//点数の更新
@@ -345,12 +330,38 @@ this.dots = this.dots || {};
 
 		} else {
 			//クリアするdotがないとき
-
 			self._resetData();
 		}
 
 		event.preventDefault();
 	};
+
+	/**
+	 * 次に生まれるドットのインデックスの配列を生成する
+	 * 
+	 * @return newBornIndexArray
+	 */
+	self._createNextBornIndexArray = function(){ //self.dotContainerは引数にする？
+		var existFlg,
+			newBornIndexArray = [],
+			i,
+			j;
+
+		for (i = 0; i < self.ROW_COUNT * self.COLUMN_COUNT; i++) {
+			existFlg = false;
+			for (j = 0; j < self.dotContainer.getNumChildren(); j++) {
+				if(i === self.dotContainer.getChildAt(j).positionIndex){
+					existFlg = true;
+					break;
+				}
+			}
+			if(existFlg === false){
+				newBornIndexArray.push(i);
+			}
+		}
+
+		return newBornIndexArray;
+	}
 
 	/**
 	 * explanation
@@ -463,24 +474,39 @@ this.dots = this.dots || {};
 	};
 
 	//このメソッドださいorz
-	self._updateIndex = function(index, removedIndexArray){
-		var count = 0;	
-		for (var i = 0; i < removedIndexArray.length; i++) {
+
+	/**
+	 * 削除する配列をもとに、インデックスを更新する
+	 * 
+	 * @param beforeIndex beforeIndex
+	 * @param removedIndexArray removedIndexArray
+	 * @return index
+	 */
+	self._updateIndex = function(beforeIndex, removedIndexArray){
+		var count = 0,
+			i;	
+		for (i = 0; i < removedIndexArray.length; i++) {
 			//同じ列で　かつ自分よりも低いインデックスのもの
-			if((index % self.COLUMN_COUNT === removedIndexArray[i] % self.COLUMN_COUNT) &&
-				index < removedIndexArray[i] ){
+			if((beforeIndex % self.COLUMN_COUNT === removedIndexArray[i] % self.COLUMN_COUNT) &&
+				beforeIndex < removedIndexArray[i] ){
 				count++;
 			}
 		}
 
-		return index + count * self.COLUMN_COUNT;
+		return beforeIndex + count * self.COLUMN_COUNT;
 	};
 
-	//このメソッドださいorz
+	/**
+	 * 削除する配列をもとに、同カラムで削除されるドットの数を返す
+	 * 
+	 * @param index index
+	 * @param removedIndexArray removedIndexArray
+	 * @return count
+	 */
 	self._getDeletedCountForColumn = function(index, removedIndexArray){
-		var count = 0;	
-		for (var i = 0; i < removedIndexArray.length; i++) {
-			//同じ列で　かつ自分よりも低いインデックスのもの
+		var count = 0,
+			i;
+		for (i = 0; i < removedIndexArray.length; i++) {
 			if(index % self.COLUMN_COUNT === removedIndexArray[i] % self.COLUMN_COUNT){
 				count++;
 			}
