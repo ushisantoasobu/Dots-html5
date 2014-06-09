@@ -8,25 +8,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <body>
-	<p id="deleteTotalCount">消したドットの総数 : 0</p>
-	<p id="deleteCount">消した回数 : 0</p>
+	<p id="deleteTotalCount"></p>
+	<p id="deleteCount"></p>
+	<!-- <img src="http://blog-imgs-54.fc2.com/i/m/a/imageindex/20140206203433156.jpg"> -->
 	<canvas id="dotsCanvas" width='320' height='320'></canvas>
 
 	<script src='./src/Circle.js'></script>
 	<script src='./src/Dot.js'></script>
-	<script src='./src/Line.js'></script>	
+	<script src='./src/Line.js'></script>
 	<script src='./src/Container.js'></script>	
 	<script src='./src/Stage.js'></script>	
 	<script src='./MainCtrl.js'></script>
 	
 	<script type="text/javascript">
 
+
 	function init(){
 		var canvas = document.getElementById('dotsCanvas');
 		dots.MainCtrl.setInitialSetting(canvas);
 
-		console.log(canvas.offsetTop);
-		console.log(canvas.offsetLeft);
+		scoreEventHandler(null);
 	}
 
 	function scoreEventHandler(e){
@@ -38,5 +39,6 @@
 	window.addEventListener('dot_score_update_event', scoreEventHandler, false);
 
 	</script>
+
 </body>
 </html>
