@@ -114,6 +114,10 @@ this.dots = this.dots || {};
 		self.currentTargetColor = -1;
 		self.selectedDotsArray = [];
 		self.touchStartPoint = {x:0, y:0};
+		for(var i = 0; i < self.dotContainer.getNumChildren(); i++){
+			var dot = self.dotContainer.getChildAt(i);
+			dot.selected = false;
+		}
 	};
 
 	/**
@@ -215,11 +219,18 @@ this.dots = this.dots || {};
 							var lastDot = self.selectedDotsArray[selectedDotsCount - 1];
 							var lastIndex = lastDot.positionIndex;
 
-							if(self.isAbleToBeNextDot(dot, lastIndex) === true){
+							if (self.isAbleToBeNextDot(dot, lastIndex) === true) {
 								self._didDotInTarget(dot);
 								self.drawLineFromDotToDot(lastDot, dot);
 								break;
 							}
+						}
+
+						//1つまえのもののとき
+						if (selectedDotsCount > 1 && self.selectedDotsArray[selectedDotsCount - 2] === dot) {
+							self._didDotOutTarget();
+							self.deleteLastLine();
+							break;
 						}
 					}
 				}
@@ -388,10 +399,9 @@ this.dots = this.dots || {};
 	};
 
 	/**
-	 * explanation
+	 * 対象のドットがターゲットになったときの処理
 	 * 
-	 * @param explanation
-	 * @return explanation
+	 * @param dot
 	 */
 	self._didDotInTarget = function(dot){
 		self.touchStartPoint.x = dot.x;
@@ -399,6 +409,23 @@ this.dots = this.dots || {};
 		dot.selected = true;
 		dot.rippleAnimation();
 		self.selectedDotsArray.push(dot);
+	};
+
+	/**
+	 * ドットがターゲットから外れたときの処理
+	 */
+	self._didDotOutTarget = function(){
+		if(self.selectedDotsArray.length < 2){
+			return;
+		}
+		var arr = self.selectedDotsArray,
+			dot = arr[arr.length - 2];
+		
+		self.touchStartPoint.x = dot.x;
+		self.touchStartPoint.y = dot.y;
+		//dot.rippleAnimation();
+		var outDot = self.selectedDotsArray.pop();
+		outDot.selected = false;
 	};
 
 	/**
@@ -415,6 +442,17 @@ this.dots = this.dots || {};
 			toDot.y
 		);
 		self.lineContainer.addChild(line);
+	};
+
+	/**
+	 * あるドットからドットへ線を引く
+	 * 
+	 * @param explanation
+	 * @return explanation
+	 */
+	self.deleteLastLine = function(){
+		var count = self.lineContainer.getNumChildren();
+		self.lineContainer.removeChildAt(count - 1);
 	};
 
 	/**

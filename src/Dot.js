@@ -135,6 +135,7 @@ this.dots = this.dots || {};
 		if(this._isRipple === true){
 			if(this._rippleCount === 30){
 				this._isRipple = false;
+				this._rippleCount = 0;
 			} else {
 				ctx.beginPath();
 				ctx.arc(this.x + addX, this.y + addY, this.radius + this.radius * 2 / this._rippleCount, 0, Math.PI*2, false);
