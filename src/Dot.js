@@ -7,9 +7,9 @@ this.dots = this.dots || {};
 		this.initialize(x ,y, radius, colorId);
 	};
 
-	Dot.COLORLIST = [	'rgb(128, 100, 162)', 
-						'rgb(255, 200, 62)', 
-						'rgb(48, 230, 92)'];/*, 
+	Dot.COLORLIST = [	'rgb(138, 199, 222)', 
+						'rgb(217, 235, 82)', 
+						'rgb(242, 107, 122)'];/*, 
 						'rgb(200, 200, 111)', 
 						'rgb(28, 111, 192)', ];*/
 
@@ -131,21 +131,36 @@ this.dots = this.dots || {};
 
 	p._isRipple = false;
 
+	var ANIM_FRAME = 30;
 	p._drawRipple = function(ctx, addX, addY){
 		if(this._isRipple === true){
-			if(this._rippleCount === 30){
+			if(this._rippleCount === ANIM_FRAME){
 				this._isRipple = false;
 				this._rippleCount = 0;
 			} else {
 				ctx.beginPath();
-				ctx.arc(this.x + addX, this.y + addY, this.radius + this.radius * 2 / this._rippleCount, 0, Math.PI*2, false);
-				ctx.strokeStyle = Dot.COLORLIST[this.colorId];
-				ctx.lineWidth = 2;
+				ctx.arc(this.x + addX, this.y + addY, this.radius + this.radius * (this._rippleCount / ANIM_FRAME), 0, Math.PI * 2, false);
+				ctx.strokeStyle = this._setAlpha(Dot.COLORLIST[this.colorId], 1 - this._rippleCount / ANIM_FRAME);
+				ctx.lineWidth = 6;
 				ctx.stroke();
 			}
 			this._rippleCount++;
 		}
 	}
+
+	p._setAlpha = function(rgb, alpha){
+		//surely, this is bad source
+		if(typeof rgb !== "string"){
+			return;
+		}
+		// if(){
+
+		// }
+		var ret;
+		ret = rgb.replace("rgb", "rgba");
+		ret = ret.replace(")", ", " + alpha + ")");
+		return ret;
+	};
 	
 
 
