@@ -7,6 +7,15 @@
 <meta name="description" content="">
 <meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <!-- <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"> -->
+<link href='http://fonts.googleapis.com/css?family=Chewy' rel='stylesheet' type='text/css'>
+<style>
+p{
+	font-family : 'Chewy', cursive;
+	font-size: 24pt;
+	color: #888888;
+	margin:20px;
+}
+</style>
 </head>
 <body>
 	<p id="deleteTotalCount"></p>
@@ -34,8 +43,8 @@
 	}
 
 	function scoreEventHandler(e){
-		document.getElementById('deleteCount').innerHTML = '消した回数 : ' + dots.MainCtrl.getDeleteCount();
-		document.getElementById('deleteTotalCount').innerHTML = '消したドットの総数 : ' + dots.MainCtrl.getDeleteDotsCount();
+		// document.getElementById('deleteCount').innerHTML = '消した回数 : ' + dots.MainCtrl.getDeleteCount();
+		document.getElementById('deleteTotalCount').innerHTML = 'point : ' + dots.MainCtrl.getDeleteDotsCount();
 	}
 
 	window.addEventListener('load', init, false);
