@@ -31,6 +31,23 @@ this.dots = this.dots || {};
 	/** explanation */
 	self.DOT_FALL_DURATION = 100;
 
+	/** explanation */
+	self.BONUS_POINT = {
+		'4' : 1,
+		'5' : 3,
+		'6' : 6,
+		'7' : 9,
+		'8' : 13,
+		'9' : 18,
+		'10' : 23,
+		'11' : 30,
+		'12' : 38,
+		'13' : 47,
+		'14' : 57,
+		'15' : 68,
+		'16' : 80
+	};
+
 
 	//-----------------------------------
 	// variables
@@ -329,7 +346,7 @@ this.dots = this.dots || {};
 
 			//点数の更新
 			self._deleteCount++;
-			self._deleteDotsCount += self.selectedDotsArray.length;
+			self._deleteDotsCount += self._getBonusPoint(self.selectedDotsArray.length);
 
 			document.dispatchEvent(self.scoreUpdateEvent);
 			
@@ -615,6 +632,13 @@ this.dots = this.dots || {};
 		}
 		return true;
 	};
+
+	self._getBonusPoint = function(count){
+		if(self.BONUS_POINT[count.toString()]){
+			return count + self.BONUS_POINT[count.toString()];
+		}
+		return count;
+	}
 
 	/**
 	 * プレイ可能状態にする
