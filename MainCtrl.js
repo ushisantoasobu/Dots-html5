@@ -48,6 +48,9 @@ this.dots = this.dots || {};
 		'16' : 80
 	};
 
+	/** 制限時間ms */
+	self.LIMIT_TIME = 30 * 1000;
+
 
 	//-----------------------------------
 	// variables
@@ -82,6 +85,12 @@ this.dots = this.dots || {};
 
 	/** count of delete action */
 	self._deleteCount = 0;
+
+	/** explanation */
+	self.startTime = null;
+
+	/** explanation */
+	self.timer = null;
 
 	//event
 	/** スコア更新イベント */
@@ -118,9 +127,18 @@ this.dots = this.dots || {};
 		self.scoreUpdateEvent = document.createEvent('Events');
 		self.scoreUpdateEvent.initEvent('dot_score_update_event', true, true);
 
+		self.startTime = new Date();
+
 		//tick
-		setInterval(function(){
+		self.timer = setInterval(function(){
 			self.stage.update();
+
+			var current = new Date()
+			if(current - self.startTime > self.LIMIT_TIME){
+				alert("time over");
+				clearInterval(self.timer);
+			}
+
 		}, 1000 / 60);
 	};
 
@@ -345,9 +363,12 @@ this.dots = this.dots || {};
 			}
 
 			//点数の更新
+			var addPoint = self.selectedDotsArray.length;
 			self._deleteCount++;
-			self._deleteDotsCount += self._getBonusPoint(self.selectedDotsArray.length);
+			self._deleteDotsCount += addPoint + self._getBonusPoint(addPoint);
 
+			self.scoreUpdateEvent.addPoint = addPoint;
+			self.scoreUpdateEvent.bonusPoint = self._getBonusPoint(addPoint);
 			document.dispatchEvent(self.scoreUpdateEvent);
 			
 			self._resetData();
@@ -635,9 +656,9 @@ this.dots = this.dots || {};
 
 	self._getBonusPoint = function(count){
 		if(self.BONUS_POINT[count.toString()]){
-			return count + self.BONUS_POINT[count.toString()];
+			return self.BONUS_POINT[count.toString()];
 		}
-		return count;
+		return 0;
 	}
 
 	/**

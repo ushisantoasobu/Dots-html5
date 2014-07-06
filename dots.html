@@ -18,12 +18,14 @@ p{
 </style>
 </head>
 <body>
-	<p id="deleteTotalCount"></p>
-	<p id="deleteCount"></p>
+	<div>
+	<p id="p_point"></p>
+	</div>
 	<!-- <img src="http://blog-imgs-54.fc2.com/i/m/a/imageindex/20140206203433156.jpg"> -->
 	<div style="text-align:center;">
-		<canvas id="dotsCanvas" width='320' height='320'></canvas>
+		<canvas id="dotsCanvas" width='240' height='240'></canvas>
 	</div>
+	<p id="p_add_point"></p>
 
 	<script src='./src/Circle.js'></script>
 	<script src='./src/Dot.js'></script>
@@ -43,14 +45,26 @@ p{
 	}
 
 	function scoreEventHandler(e){
-		// document.getElementById('deleteCount').innerHTML = '消した回数 : ' + dots.MainCtrl.getDeleteCount();
-		document.getElementById('deleteTotalCount').innerHTML = 'point : ' + dots.MainCtrl.getDeleteDotsCount();
+		jQuery("#p_point").html('point : ' + dots.MainCtrl.getDeleteDotsCount());
+
+		if(e && e.addPoint){
+			if(e.bonusPoint && e.bonusPoint > 0){
+				jQuery("#p_add_point").html("+" + e.addPoint + "<font color='#900'>   bonus +" + e.bonusPoint + "</font>");
+			}else{
+				jQuery("#p_add_point").html("+" + e.addPoint);
+			}
+			jQuery("#p_add_point").stop();
+			jQuery("#p_add_point").fadeIn(0);
+			jQuery("#p_add_point").fadeOut(1200);
+		}
 	}
 
 	window.addEventListener('load', init, false);
 	window.addEventListener('dot_score_update_event', scoreEventHandler, false);
 
 	</script>
+
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 
 </body>
 </html>
