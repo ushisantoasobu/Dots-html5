@@ -1,5 +1,8 @@
 {
-  "src_files": [
+ "launch_in_dev" : [
+  "Chrome"
+  ], 
+ "src_files": [
     "test/lib/*.js",
     "setup.js",
     "MainCtrl.js",
