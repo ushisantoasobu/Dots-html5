@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>dots demo</title>
+<meta name="keywords" content="">
+<meta name="description" content="">
+<meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"> -->
+<link href='http://fonts.googleapis.com/css?family=Chewy' rel='stylesheet' type='text/css'>
+<style>
+p{
+	font-family : 'Chewy', cursive;
+	font-size: 24pt;
+	color: #888888;
+	margin:20px;
+}
+</style>
+</head>
+<body>
+	<div>
+	<p id="p_point"></p>
+	</div>
+	<!-- <img src="http://blog-imgs-54.fc2.com/i/m/a/imageindex/20140206203433156.jpg"> -->
+	<div style="text-align:center;">
+		<canvas id="dotsCanvas" width='240' height='240'></canvas>
+	</div>
+	<p id="p_add_point"></p>
+
+	<script src='./src/Circle.js'></script>
+	<script src='./src/Dot.js'></script>
+	<script src='./src/Line.js'></script>
+	<script src='./src/Container.js'></script>	
+	<script src='./src/Stage.js'></script>	
+	<script src='./MainCtrl.js'></script>
+	
+	<script type="text/javascript">
+
+
+	function init(){
+		var canvas = document.getElementById('dotsCanvas');
+		dots.MainCtrl.setInitialSetting(canvas);
+
+		scoreEventHandler(null);
+	}
+
+	function scoreEventHandler(e){
+		jQuery("#p_point").html('point : ' + dots.MainCtrl.getDeleteDotsCount());
+
+		if(e && e.addPoint){
+			if(e.bonusPoint && e.bonusPoint > 0){
+				jQuery("#p_add_point").html("+" + e.addPoint + "<font color='#900'>   bonus +" + e.bonusPoint + "</font>");
+			}else{
+				jQuery("#p_add_point").html("+" + e.addPoint);
+			}
+			jQuery("#p_add_point").stop();
+			jQuery("#p_add_point").fadeIn(0);
+			jQuery("#p_add_point").fadeOut(1200);
+		}
+	}
+
+	window.addEventListener('load', init, false);
+	window.addEventListener('dot_score_update_event', scoreEventHandler, false);
+
+	</script>
+
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
+</body>
+</html>
